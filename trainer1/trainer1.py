@@ -17,6 +17,7 @@ import logging
 import numpy as np
 import pandas as pd
 import os
+import sys
 import time
 import gym
 import numpy.random as rd
@@ -84,6 +85,11 @@ def connect():
     print('Connection established')
     sio.start_background_task(send_heartbeat)  # Start the heartbeat task on connect
 
+@sio.on('terminate_yourself')
+def on_terminate():
+    logging.info(f"Received termination signal {id_name}. Exiting...")
+    sys.exit(0)
+
 def send_heartbeat():
     try:
         while True:
@@ -93,7 +99,7 @@ def send_heartbeat():
             except socketio.exceptions.BadNamespaceError as e:
                 logging.warning(f"Namespace error occurred: {e}")
     except Exception as e:
-        logging.error(f"An error occurred in {script_name} send_heartbeat: {e}", exc_info=True)
+        logging.error(f"An error occurred in {id_name} send_heartbeat: {e}", exc_info=True)
 
 @sio.event
 def disconnect():
@@ -102,7 +108,7 @@ def disconnect():
     try:
         sio.connect('http://localhost:5678')
     except Exception as e:
-        logging.error(f"{script_name} Failed to reconnect: {e}", exc_info=True)
+        logging.error(f"{id_name} Failed to reconnect: {e}", exc_info=True)
 
 sio.connect('http://localhost:5678')
 

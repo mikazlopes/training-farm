@@ -17,6 +17,7 @@ import logging
 import numpy as np
 import pandas as pd
 import os
+import sys
 import time
 import gym
 import numpy.random as rd
@@ -61,7 +62,7 @@ learning_rate = args.learning_rate
 batch_size = args.batch_size
 netDimensions = ast.literal_eval(args.net_dimensions)  # Convert the string representation of list back to a list
 script_uid = args.uid
-  
+ 
 def subtract_years_from_date(date_str, period_years):
     date_obj = datetime.strptime(date_str, "%Y-%m-%d")
     new_date_obj = date_obj.replace(year=date_obj.year - period_years)
@@ -75,6 +76,7 @@ TEST_END_DATE = '2023-09-28'
 action_dim = len(ticker_list)
 state_dim = 1 + 2 + 3 * action_dim + len(INDICATORS) * action_dim
 
+
 sio = socketio.Client()
 script_name = id_name + '/' + id_name + '.py'  
 
@@ -83,16 +85,21 @@ def connect():
     print('Connection established')
     sio.start_background_task(send_heartbeat)  # Start the heartbeat task on connect
 
+@sio.on('terminate_yourself')
+def on_terminate():
+    logging.info(f"Received termination signal {id_name}. Exiting...")
+    sys.exit(0)
+
 def send_heartbeat():
     try:
         while True:
             try:
                 sio.emit('heartbeat', {'script': script_name})
-                time.sleep(3)  # Send heartbeat every 3 seconds
+                time.sleep(5)  # Send heartbeat every 3 seconds
             except socketio.exceptions.BadNamespaceError as e:
                 logging.warning(f"Namespace error occurred: {e}")
     except Exception as e:
-        logging.error(f"An error occurred in {script_name} send_heartbeat: {e}", exc_info=True)
+        logging.error(f"An error occurred in {id_name} send_heartbeat: {e}", exc_info=True)
 
 @sio.event
 def disconnect():
@@ -101,7 +108,7 @@ def disconnect():
     try:
         sio.connect('http://localhost:5678')
     except Exception as e:
-        logging.error(f"{script_name} Failed to reconnect: {e}", exc_info=True)
+        logging.error(f"{id_name} Failed to reconnect: {e}", exc_info=True)
 
 sio.connect('http://localhost:5678')
 
@@ -479,6 +486,7 @@ class Evaluator:
               f"| {avg_r:8.2f}  {std_r:6.2f}  {avg_s:6.0f}  "
               f"| {logging_tuple[0]:8.2f}  {logging_tuple[1]:8.2f}")
         
+        
         sio.send({'script': script_name, 'uid': script_uid, 'type': 'training', 'value': float(avg_r)})
 
 
@@ -639,11 +647,12 @@ def train(
     if_vix=True,
     **kwargs,
 ):
-    # download data
+    # fetch data
     dp = DataProcessor(data_source, **kwargs)
     data = dp.download_data(ticker_list, start_date, end_date, time_interval)
     data = dp.clean_data(data)
     data = dp.add_technical_indicator(data, technical_indicator_list)
+
     if if_vix:
         data = dp.add_vix(data)
     else:
@@ -734,42 +743,46 @@ env = StockTradingEnv
 #if you want to use larger datasets (change to longer period), and it raises error, 
 #please try to increase "target_step". It should be larger than the episode steps. 
 
+
 train(start_date = TRAIN_START_DATE, 
-      end_date = TRAIN_END_DATE,
-      ticker_list = ticker_list, 
-      data_source = 'alpaca',
-      time_interval= '1Min', 
-      technical_indicator_list= INDICATORS,
-      drl_lib='elegantrl', 
-      env=env,
-      model_name='ppo',
-      if_vix=True, 
-      API_KEY = API_KEY, 
-      API_SECRET = API_SECRET, 
-      API_BASE_URL = API_BASE_URL,
-      erl_params=ERL_PARAMS,
-      cwd='./trained_models/' + id_name + '-' + str(script_uid) + '-steps-' + str(totalTimesteps) + str(ERL_PARAMS["net_dimension"]) + '-' + TRAIN_START_DATE,  #current_working_dir,
-      break_step=1e5)
+    end_date = TRAIN_END_DATE,
+    ticker_list = ticker_list, 
+    data_source = 'alpaca',
+    time_interval= '1Min', 
+    technical_indicator_list= INDICATORS,
+    drl_lib='elegantrl', 
+    env=env,
+    model_name='ppo',
+    if_vix=True, 
+    API_KEY = API_KEY, 
+    API_SECRET = API_SECRET, 
+    API_BASE_URL = API_BASE_URL,
+    erl_params=ERL_PARAMS,
+    cwd='./trained_models/' + id_name + '-' + str(script_uid) + '-steps-' + str(totalTimesteps) + str(ERL_PARAMS["net_dimension"]) + '-' + TRAIN_START_DATE,  #current_working_dir,
+    break_step=1e5)
+   
 
 
 account_value_erl=test(start_date = TEST_START_DATE, 
-                      end_date = TEST_END_DATE,
-                      ticker_list = ticker_list, 
-                      data_source = 'alpaca',
-                      time_interval= '1Min', 
-                      technical_indicator_list= INDICATORS,
-                      drl_lib='elegantrl', 
-                      env=env, 
-                      model_name='ppo',
-                      if_vix=True, 
-                      API_KEY = API_KEY, 
-                      API_SECRET = API_SECRET, 
-                      API_BASE_URL = API_BASE_URL,
-                      cwd='./trained_models/' + id_name + '-' + str(script_uid) + '-steps-' + str(totalTimesteps) + str(ERL_PARAMS["net_dimension"]) + '-' + TRAIN_START_DATE,  #current_working_dir,
-                      net_dimension = ERL_PARAMS['net_dimension'])
+                    end_date = TEST_END_DATE,
+                    ticker_list = ticker_list, 
+                    data_source = 'alpaca',
+                    time_interval= '1Min', 
+                    technical_indicator_list= INDICATORS,
+                    drl_lib='elegantrl', 
+                    env=env, 
+                    model_name='ppo',
+                    if_vix=True, 
+                    API_KEY = API_KEY, 
+                    API_SECRET = API_SECRET, 
+                    API_BASE_URL = API_BASE_URL,
+                    cwd='./trained_models/' + id_name + '-' + str(script_uid) + '-steps-' + str(totalTimesteps) + str(ERL_PARAMS["net_dimension"]) + '-' + TRAIN_START_DATE,  #current_working_dir,
+                    net_dimension = ERL_PARAMS['net_dimension'])
+   
 
-# train(start_date = '2023-08-01', 
-#       end_date = '2023-08-30',
+
+# train(start_date = TRAIN_START_DATE, 
+#       end_date = TRAIN_END_DATE,
 #       ticker_list = ticker_list, 
 #       data_source = 'alpaca',
 #       time_interval= '1Min', 
@@ -783,5 +796,5 @@ account_value_erl=test(start_date = TEST_START_DATE,
 #       API_BASE_URL = API_BASE_URL,
 #       erl_params=ERL_PARAMS,
 #       cwd='./candidate/' + id_name + '-' + str(script_uid) + '-steps-' + str(totalTimesteps) + str(ERL_PARAMS["net_dimension"]) + '-' + TRAIN_START_DATE,  #current_working_dir,
-#       break_step=2e5)
+#       break_step=2e6)
 

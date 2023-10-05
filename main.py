@@ -85,15 +85,25 @@ class ProcessManager:
             self.current_config_index += 1
             return proc.uid
     
-    def terminate_process(self, script):
+    def terminate_process(self, script, force_kill=False):
         if script in self.processes:
-            self.processes[script].terminate()
-            self.processes[script].process.wait()  # Wait for process to complete termination
-            del self.processes[script]
+            if force_kill:  # If the process was inactive
+                self.processes[script].terminate()  # Directly terminate
+                self.processes[script].process.wait()
+                del self.processes[script]
+            else:  # If it's due to a low average
+                # Inform the script to terminate itself
+                sio.emit('terminate_yourself', room=script)
+                # Optionally, you can add a wait period here and then forcefully terminate if the process doesn't shut down in the given period.
+                sio.sleep(5)
+                if script in self.processes:
+                    self.processes[script].terminate()
+                    self.processes[script].process.wait()
+                    del self.processes[script]
 
     
-    def restart_process(self, script):
-        self.terminate_process(script)
+    def restart_process(self, script, force_kill=False):
+        self.terminate_process(script, force_kill)
         uid = self.start_process(script)
         self.last_active[script] = datetime.now()
         return uid
@@ -113,7 +123,7 @@ def monitor_processes(app):
                 last_time = manager.last_active.get(script, now)
                 if now - last_time > timedelta(seconds=60):
                     logger.info(f"{script} has been inactive. Restarting...")
-                    manager.restart_process(script)
+                    manager.restart_process(script, force_kill=True)
             sio.sleep(1)  # Check every second
 
 app = Flask(__name__)
@@ -137,14 +147,14 @@ def index():
 
 @sio.on('connect')
 def on_connect():
-    logger.info("Client Connected")
+    logger.info("Client Connected - Server side")
     sio.start_background_task(monitor_processes, current_app._get_current_object())
 
 
 
 @sio.on('disconnect')
 def on_disconnect():
-    logger.info(f"Client {script} Disconnected")
+    logger.info(f"Client Disconnected - Server side")
 
 @sio.on('heartbeat')
 def handle_heartbeat(data):
@@ -171,9 +181,10 @@ def handle_message(data):
         logger.info(collected_values[script])
         if len(collected_values[script]) == 5:
             average = sum(collected_values[script]) / 5
-            if average < 250:
+            if average < 150:
                 logger.info(f"Average for {script} too low, killing training")
-                manager.terminate_process(script)
+                #Send termination signal
+                sio.emit('terminate_process', {'script': script})
                 collected_values[script].clear()
                 uid = manager.start_process(script)
 
@@ -199,6 +210,7 @@ def start_scripts(scripts, manager):
     for script in scripts:
         uid = manager.start_process(script)
         time.sleep(60)  # Delay of 60 seconds between starting each script
+
 
 if __name__ == "__main__":
     scripts = ['trainer1/trainer1.py', 
