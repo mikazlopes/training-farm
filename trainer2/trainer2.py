@@ -85,6 +85,14 @@ def connect():
     print('Connection established')
     sio.start_background_task(send_heartbeat)  # Start the heartbeat task on connect
 
+sio = socketio.Client()
+script_name = id_name + '/' + id_name + '.py'  
+
+@sio.event
+def connect():
+    print('Connection established')
+    sio.start_background_task(send_heartbeat)  # Start the heartbeat task on connect
+
 @sio.on('terminate_yourself')
 def on_terminate():
     logging.info(f"Received termination signal {id_name}. Exiting...")
@@ -94,8 +102,9 @@ def send_heartbeat():
     try:
         while True:
             try:
-                sio.emit('heartbeat', {'script': script_name})
-                time.sleep(5)  # Send heartbeat every 3 seconds
+                if sio.connected:
+                    sio.emit('heartbeat', {'script': id_name})
+                    time.sleep(5)  # Send heartbeat every 3 seconds
             except socketio.exceptions.BadNamespaceError as e:
                 logging.warning(f"Namespace error occurred: {e}")
     except Exception as e:
@@ -105,10 +114,11 @@ def send_heartbeat():
 def disconnect():
     print(f'{script_name} - Disconnected from server')
     time.sleep(10)  # wait for 10 seconds
-    try:
-        sio.connect('http://localhost:5678')
-    except Exception as e:
-        logging.error(f"{id_name} Failed to reconnect: {e}", exc_info=True)
+    if not sio.connected:
+        try:
+            sio.connect('http://localhost:5678')
+        except Exception as e:
+            logging.error(f"{id_name} Failed to reconnect: {e}", exc_info=True)
 
 sio.connect('http://localhost:5678')
 

@@ -1,0 +1,25 @@
+2023-10-05 10:13:33,131 [ERROR] trainer6 Failed to reconnect: Already connected
+Traceback (most recent call last):
+  File "/Users/miguellopes/Documents/pod-trader/trainer6/trainer6.py", line 109, in disconnect
+    sio.connect('http://localhost:5678')
+  File "/Users/miguellopes/miniforge3/envs/trader/lib/python3.10/site-packages/socketio/client.py", line 306, in connect
+    raise exceptions.ConnectionError('Already connected')
+socketio.exceptions.ConnectionError: Already connected
+2023-10-05 10:40:07,498 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-05 10:42:14,877 [INFO] | 2.00e+04       127  |    -0.70    0.05  100000  |     0.00      0.43
+2023-10-05 10:44:25,685 [INFO] | 4.00e+04       258  |    -0.69    0.06  100000  |     0.00      0.44
+2023-10-05 10:46:29,126 [INFO] | 6.00e+04       382  |    -0.68    0.05  100000  |     0.00      0.44
+2023-10-05 10:48:29,211 [INFO] | 8.00e+04       502  |    -0.69    0.03  100000  |     0.00      0.43
+2023-10-05 10:50:32,252 [INFO] | 1.00e+05       625  |    -0.67    0.05  100000  |     0.00      0.45
+2023-10-05 10:59:03,218 [INFO] price_array: 72540
+2023-10-05 10:59:03,220 [INFO] | load actor from: ./trained_models/trainer6-03e47-steps-100000[256, 128]-2019-01-01/actor.pth
+2023-10-05 10:59:13,431 [INFO] Test Finished!
+2023-10-05 10:59:13,431 [INFO] episode_return: 1.130486465312116

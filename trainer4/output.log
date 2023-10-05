@@ -39,3 +39,17 @@ socketio.exceptions.ConnectionError: Already connected
 | `objA`: Objective of Actor network. It is the average Q value of the critic network.
 |     step      time  |     avgR    stdR    avgS  |     objC      objA
 2023-10-03 17:42:27,444 [INFO] | 2.00e+04       213  |    43.63    1.34  300000  |     0.29      0.01
+2023-10-05 10:31:46,338 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-05 10:38:01,748 [INFO] | 2.00e+04       375  |     9.68   11.22  300000  |     0.01      0.43
+2023-10-05 10:44:13,708 [INFO] | 4.00e+04       747  |    10.65    4.97  300000  |     0.00      0.45
+2023-10-05 10:50:20,050 [INFO] | 6.00e+04      1114  |     2.03    3.21  300000  |     0.00      0.43
+2023-10-05 10:56:26,534 [INFO] | 8.00e+04      1480  |     7.26    3.53  300000  |     0.00      0.43
+2023-10-05 11:02:28,784 [INFO] | 1.00e+05      1842  |    13.04    6.47  300000  |     0.00      0.43

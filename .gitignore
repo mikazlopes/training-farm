@@ -2,6 +2,7 @@ trainer_models/
 processes.csv
 *.log
 .DS_Store
+*.pth
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -162,3 +163,9 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+trainer2/output.log
+trainer4/output.log
+trainer5/output.log
+trainer6/output.log
+trainer1/output.log
+trainer3/output.log
