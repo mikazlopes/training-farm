@@ -5,6 +5,8 @@ import hashlib
 import logging
 import csv
 import itertools
+import threading
+import time
 import signal  # for handling the Ctrl+C interruption
 import subprocess  # for starting the TrainerProcess
 from flask import Flask, current_app  # importing current_app
@@ -12,6 +14,15 @@ from flask_socketio import SocketIO
 from datetime import datetime, timedelta
 from collections import deque, OrderedDict
 from configurations import CONFIGURATIONS  # Importing the configuration file
+
+logging.basicConfig(
+        level=logging.DEBUG,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        handlers=[
+                logging.FileHandler("main.log"),
+                logging.StreamHandler()])
+
+logger = logging.getLogger(__name__)
 
 def generate_combinations():
     configurations = CONFIGURATIONS.copy()
@@ -62,6 +73,7 @@ class ProcessManager:
         self.leaderboard = OrderedDict()
         self.last_active = {}
         self.current_config_index = 0
+        
     
     def start_process(self, script):
         if self.current_config_index < len(self.configurations):
@@ -76,7 +88,9 @@ class ProcessManager:
     def terminate_process(self, script):
         if script in self.processes:
             self.processes[script].terminate()
+            self.processes[script].process.wait()  # Wait for process to complete termination
             del self.processes[script]
+
     
     def restart_process(self, script):
         self.terminate_process(script)
@@ -104,14 +118,9 @@ def monitor_processes(app):
 
 app = Flask(__name__)
 sio = SocketIO(app, cors_allowed_origins="*")
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 collected_values = {'trainer1/trainer1.py': deque(maxlen=5),
                     'trainer2/trainer2.py': deque(maxlen=5),
-                    'trainer3/trainer3.py': deque(maxlen=5),
-                    'trainer4/trainer4.py': deque(maxlen=5),
-                    'trainer5/trainer5.py': deque(maxlen=5),
-                    'trainer6/trainer6.py': deque(maxlen=5)}
+                    'trainer3/trainer3.py': deque(maxlen=5)}
 
 
 def write_processes_to_csv(file_path, script, uid, return_value, config):
@@ -186,14 +195,15 @@ def exit_handler(signum, frame):
 
 signal.signal(signal.SIGINT, exit_handler)
 
+def start_scripts(scripts, manager):
+    for script in scripts:
+        uid = manager.start_process(script)
+        time.sleep(60)  # Delay of 60 seconds between starting each script
+
 if __name__ == "__main__":
     scripts = ['trainer1/trainer1.py', 
-               'trainer2/trainer2.py', 
-               'trainer3/trainer3.py', 
-               'trainer4/trainer4.py', 
-               'trainer5/trainer5.py', 
-               'trainer6/trainer6.py']
-    
+                'trainer2/trainer2.py',
+                'trainer3/trainer3.py']
     configurations = generate_combinations()
     manager = ProcessManager(configurations=configurations)
     
@@ -207,8 +217,7 @@ if __name__ == "__main__":
             headers = ['Script', 'UID', 'Return Value'] + list(first_config.keys())
             writer.writerow(headers)
 
-    for script in scripts:
-    
-        uid = manager.start_process(script)
-
+    # Start the scripts in a separate thread
+    thread = threading.Thread(target=start_scripts, args=(scripts, manager))
+    thread.start()
     sio.run(app, port=5678)

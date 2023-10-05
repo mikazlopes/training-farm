@@ -81,18 +81,18 @@ script_name = id_name + '/' + id_name + '.py'
 @sio.event
 def connect():
     print('Connection established')
+    sio.start_background_task(send_heartbeat)  # Start the heartbeat task on connect
 
 def send_heartbeat():
     try:
         while True:
             try:
                 sio.emit('heartbeat', {'script': script_name})
+                time.sleep(5)  # Send heartbeat every 3 seconds
             except socketio.exceptions.BadNamespaceError as e:
                 logging.warning(f"Namespace error occurred: {e}")
-            time.sleep(3)  # Send heartbeat every 3 seconds
     except Exception as e:
         logging.error(f"An error occurred in {script_name} send_heartbeat: {e}", exc_info=True)
-
 
 @sio.event
 def disconnect():
@@ -103,11 +103,7 @@ def disconnect():
     except Exception as e:
         logging.error(f"{script_name} Failed to reconnect: {e}", exc_info=True)
 
-
 sio.connect('http://localhost:5678')
-
-heartbeat_thread = threading.Thread(target=send_heartbeat)
-heartbeat_thread.start()
 
 class ActorPPO(nn.Module):
     def __init__(self, dims: [int], state_dim: int, action_dim: int):

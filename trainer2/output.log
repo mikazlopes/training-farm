@@ -1,0 +1,336 @@
+2023-10-03 12:40:31,833 [ERROR] trainer2/trainer2.py Failed to reconnect: Already connected
+Traceback (most recent call last):
+  File "/Users/miguellopes/Documents/pod-trader/trainer2/trainer2.py", line 102, in disconnect
+    sio.connect('http://localhost:5678')
+  File "/Users/miguellopes/miniforge3/envs/trader/lib/python3.10/site-packages/socketio/client.py", line 306, in connect
+    raise exceptions.ConnectionError('Already connected')
+socketio.exceptions.ConnectionError: Already connected
+2023-10-03 12:40:33,269 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 13:08:26,885 [ERROR] trainer2/trainer2.py Failed to reconnect: Already connected
+Traceback (most recent call last):
+  File "/Users/miguellopes/Documents/pod-trader/trainer2/trainer2.py", line 102, in disconnect
+    sio.connect('http://localhost:5678')
+  File "/Users/miguellopes/miniforge3/envs/trader/lib/python3.10/site-packages/socketio/client.py", line 306, in connect
+    raise exceptions.ConnectionError('Already connected')
+socketio.exceptions.ConnectionError: Already connected
+2023-10-03 13:08:27,349 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 13:10:04,788 [ERROR] packet queue is empty, aborting
+2023-10-03 15:02:43,424 [ERROR] packet queue is empty, aborting
+2023-10-03 16:30:57,687 [ERROR] trainer2/trainer2.py Failed to reconnect: Already connected
+Traceback (most recent call last):
+  File "/Users/miguellopes/Documents/pod-trader/trainer2/trainer2.py", line 102, in disconnect
+    sio.connect('http://localhost:5678')
+  File "/Users/miguellopes/miniforge3/envs/trader/lib/python3.10/site-packages/socketio/client.py", line 306, in connect
+    raise exceptions.ConnectionError('Already connected')
+socketio.exceptions.ConnectionError: Already connected
+2023-10-03 16:32:14,790 [ERROR] trainer2/trainer2.py Failed to reconnect: Already connected
+Traceback (most recent call last):
+  File "/Users/miguellopes/Documents/pod-trader/trainer2/trainer2.py", line 102, in disconnect
+    sio.connect('http://localhost:5678')
+  File "/Users/miguellopes/miniforge3/envs/trader/lib/python3.10/site-packages/socketio/client.py", line 306, in connect
+    raise exceptions.ConnectionError('Already connected')
+socketio.exceptions.ConnectionError: Already connected
+2023-10-03 16:32:17,987 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:18,177 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:18,816 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:18,820 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:19,019 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:19,026 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:19,068 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:19,120 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:19,158 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:19,174 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:19,250 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:19,252 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:19,265 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:19,268 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:19,276 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:19,281 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:19,283 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:19,284 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:19,309 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:19,309 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:19,331 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:19,393 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:19,419 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:19,494 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:19,606 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:19,643 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:19,750 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:19,923 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:20,072 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:20,166 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:20,478 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:20,508 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:20,546 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:20,663 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:20,898 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:20,911 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:20,979 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:21,084 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:21,122 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:21,241 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:21,328 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:21,459 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:21,507 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:21,569 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:21,675 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:22,025 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:22,148 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:22,242 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:22,704 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:22,870 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:22,877 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:22,896 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:23,101 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:23,119 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:23,207 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:23,370 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:23,537 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:23,650 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:23,768 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:23,987 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:24,081 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:24,257 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:24,344 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:24,472 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:24,534 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:24,715 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:24,771 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:24,858 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:25,063 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:25,267 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:25,373 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:25,498 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:25,528 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:25,597 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:25,647 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:25,839 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:25,988 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:26,063 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:26,181 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:26,293 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:26,348 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:26,454 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:26,497 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:26,590 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:26,776 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:26,825 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:26,951 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:27,051 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:27,162 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:27,338 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:27,375 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:27,437 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:27,555 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:27,618 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:27,693 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:27,749 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:27,892 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 16:32:27,942 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 17:16:50,111 [ERROR] packet queue is empty, aborting
+2023-10-03 17:22:59,168 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-03 17:24:44,765 [INFO] | 2.00e+04       106  |   -76.24    1.93  200000  |     0.26      0.02
+2023-10-03 17:26:31,265 [INFO] | 4.00e+04       212  |   -75.97    1.69  200000  |     0.44      0.00
+2023-10-03 17:28:17,189 [INFO] | 6.00e+04       318  |   -75.32    2.22  200000  |     0.55      0.00
+2023-10-03 17:30:06,084 [INFO] | 8.00e+04       427  |   -75.87    1.37  200000  |     0.31      0.02
+2023-10-03 17:31:54,622 [INFO] | 1.00e+05       535  |   -76.97    2.17  200000  |     0.55      0.01
+2023-10-03 17:34:24,996 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-03 17:37:08,275 [INFO] | 2.00e+04       163  |   -11.70    0.60  300000  |     0.17      0.02
+2023-10-03 17:39:53,525 [INFO] | 4.00e+04       329  |     4.68    1.94  300000  |     0.19      0.01
+2023-10-03 17:42:41,650 [INFO] | 6.00e+04       497  |    -8.90    1.58  300000  |     0.13      0.02
+2023-10-03 18:08:49,193 [ERROR] packet queue is empty, aborting
+2023-10-03 19:26:43,124 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-03 19:30:41,015 [INFO] | 2.00e+04       238  |   -66.16    9.91  200000  |     0.00      0.42
+2023-10-03 19:34:40,641 [INFO] | 4.00e+04       478  |   -68.48   17.26  200000  |     0.00      0.44
+2023-10-03 19:38:37,087 [INFO] | 6.00e+04       714  |   -62.40   18.94  200000  |     0.00      0.42
+2023-10-03 19:42:37,720 [INFO] | 8.00e+04       955  |   -86.07    6.80  200000  |     0.00      0.42
+2023-10-03 19:46:32,729 [INFO] | 1.00e+05      1190  |   -83.57   54.14  200000  |     0.00      0.42
+2023-10-03 21:06:58,942 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-03 21:10:42,906 [INFO] | 2.00e+04       224  |  -114.67    5.39  200000  |     0.00      0.43
+2023-10-03 21:14:23,878 [INFO] | 4.00e+04       445  |  -112.69    3.81  200000  |     0.08      0.42
+2023-10-03 21:18:04,035 [INFO] | 6.00e+04       665  |  -115.27    4.64  200000  |     0.01      0.45
+2023-10-03 21:21:38,482 [INFO] | 8.00e+04       880  |  -116.65    2.94  200000  |     0.00      0.42
+2023-10-03 21:25:14,133 [INFO] | 1.00e+05      1095  |  -115.31    5.03  200000  |     0.00      0.42
+2023-10-04 20:29:07,439 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-04 20:32:58,811 [INFO] | 2.00e+04       231  |    14.84    6.63  200000  |     0.00      0.42
+2023-10-04 22:19:38,367 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-04 22:23:14,877 [INFO] | 2.00e+04       217  |  -112.59    9.70  200000  |     0.00      0.43
+2023-10-04 22:26:53,411 [INFO] | 4.00e+04       435  |  -116.65   11.62  200000  |     0.21      0.42
+2023-10-04 22:30:29,900 [INFO] | 6.00e+04       652  |  -114.16   12.47  200000  |     0.20      0.43
+2023-10-04 22:34:03,547 [INFO] | 8.00e+04       865  |  -132.97   10.13  200000  |     0.07      0.41
+2023-10-04 22:37:35,595 [INFO] | 1.00e+05      1077  |  -120.10   11.27  200000  |     0.05      0.43
+2023-10-04 23:21:59,490 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-04 23:25:33,374 [INFO] | 2.00e+04       214  |    26.13    2.94  200000  |     0.00      0.43
+2023-10-04 23:29:07,354 [INFO] | 4.00e+04       428  |    33.06    2.94  200000  |     0.01      0.44
+2023-10-04 23:32:43,145 [INFO] | 6.00e+04       644  |    36.94    3.15  200000  |     0.00      0.43
+2023-10-04 23:36:24,703 [INFO] | 8.00e+04       865  |    32.92    3.62  200000  |     0.00      0.43
+2023-10-04 23:40:05,883 [INFO] | 1.00e+05      1086  |    35.93    5.24  200000  |     0.00      0.42
+2023-10-05 00:27:37,103 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-05 00:31:31,942 [INFO] | 2.00e+04       235  |   165.01    5.31  200000  |     0.00      0.45
+2023-10-05 00:35:23,875 [INFO] | 4.00e+04       467  |   162.36    6.72  200000  |     0.06      0.44
+2023-10-05 00:39:41,582 [INFO] | 6.00e+04       724  |   164.77    6.13  200000  |     0.23      0.44
+2023-10-05 00:43:47,417 [INFO] | 8.00e+04       970  |   157.84    7.56  200000  |     0.02      0.42
+2023-10-05 00:47:53,154 [INFO] | 1.00e+05      1216  |   158.89    5.22  200000  |     0.01      0.42
+2023-10-05 01:10:30,139 [ERROR] trainer2/trainer2.py Failed to reconnect: Already connected
+Traceback (most recent call last):
+  File "/Users/miguellopes/Documents/pod-trader/trainer2/trainer2.py", line 102, in disconnect
+    sio.connect('http://localhost:5678')
+  File "/Users/miguellopes/miniforge3/envs/trader/lib/python3.10/site-packages/socketio/client.py", line 306, in connect
+    raise exceptions.ConnectionError('Already connected')
+socketio.exceptions.ConnectionError: Already connected
+2023-10-05 01:33:55,191 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-05 01:38:53,726 [INFO] | 2.00e+04       299  |   -66.94    5.62  200000  |     0.00      0.44
+2023-10-05 01:48:13,250 [INFO] | 4.00e+04       858  |   -73.03    2.00  200000  |     0.21      0.44
+2023-10-05 01:54:15,539 [INFO] | 6.00e+04      1220  |   -74.55    3.84  200000  |     0.24      0.45
+2023-10-05 01:58:55,080 [INFO] | 8.00e+04      1500  |   -69.29    3.08  200000  |     0.10      0.43
+2023-10-05 02:03:30,044 [INFO] | 1.00e+05      1775  |   -57.38    5.61  200000  |     0.15      0.43
+2023-10-05 02:50:08,776 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-05 02:52:02,870 [INFO] | 2.00e+04       114  |   141.20    4.34  100000  |     0.00      0.44
+2023-10-05 02:53:59,724 [INFO] | 4.00e+04       231  |   144.92    4.27  100000  |     0.00      0.44
+2023-10-05 02:55:53,610 [INFO] | 6.00e+04       345  |   138.13    5.55  100000  |     0.00      0.44
+2023-10-05 02:57:48,225 [INFO] | 8.00e+04       459  |   138.10    5.45  100000  |     0.00      0.43
+2023-10-05 02:59:42,495 [INFO] | 1.00e+05       574  |   138.71    5.56  100000  |     0.00      0.41
+2023-10-05 03:23:59,913 [ERROR] trainer2/trainer2.py Failed to reconnect: Already connected
+Traceback (most recent call last):
+  File "/Users/miguellopes/Documents/pod-trader/trainer2/trainer2.py", line 102, in disconnect
+    sio.connect('http://localhost:5678')
+  File "/Users/miguellopes/miniforge3/envs/trader/lib/python3.10/site-packages/socketio/client.py", line 306, in connect
+    raise exceptions.ConnectionError('Already connected')
+socketio.exceptions.ConnectionError: Already connected
+2023-10-05 03:46:53,130 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-05 03:52:03,000 [INFO] | 2.00e+04       310  |   104.00    4.84  300000  |     0.00      0.43
+2023-10-05 03:57:14,018 [INFO] | 4.00e+04       621  |    96.43    6.85  300000  |     0.00      0.44
+2023-10-05 04:02:29,082 [INFO] | 6.00e+04       936  |    95.84    5.95  300000  |     0.00      0.42
+2023-10-05 04:07:37,876 [INFO] | 8.00e+04      1245  |    95.46    3.40  300000  |     0.00      0.44
+2023-10-05 04:12:47,117 [INFO] | 1.00e+05      1554  |    95.54    8.18  300000  |     0.00      0.44
+2023-10-05 04:58:55,873 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-05 05:01:03,401 [INFO] | 2.00e+04       128  |    72.31    2.18  100000  |     0.00      0.44
+2023-10-05 05:03:08,430 [INFO] | 4.00e+04       253  |    69.43    2.00  100000  |     0.11      0.42
+2023-10-05 05:05:15,467 [INFO] | 6.00e+04       380  |    72.30    2.76  100000  |     0.17      0.44
+2023-10-05 05:07:25,192 [INFO] | 8.00e+04       509  |    74.10    1.91  100000  |     0.13      0.44
+2023-10-05 05:09:36,040 [INFO] | 1.00e+05       640  |    69.81    2.71  100000  |     0.09      0.45
+2023-10-05 05:55:13,297 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-05 06:00:39,417 [INFO] | 2.00e+04       326  |   278.37   75.29  300000  |     0.01      0.44
+2023-10-05 06:06:11,391 [INFO] | 4.00e+04       658  |   283.00   96.31  300000  |     0.07      0.44
+2023-10-05 06:11:53,779 [INFO] | 6.00e+04      1000  |   207.43   65.34  300000  |     0.00      0.42
+2023-10-05 06:17:26,936 [INFO] | 8.00e+04      1334  |   239.31   30.75  300000  |     0.00      0.41
+2023-10-05 06:23:00,918 [INFO] | 1.00e+05      1668  |   236.14   41.06  300000  |     0.00      0.43
+2023-10-05 07:11:21,059 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-05 07:13:19,467 [INFO] | 2.00e+04       118  |    38.29    5.84  100000  |     0.00      0.43
+2023-10-05 07:15:20,062 [INFO] | 4.00e+04       239  |    37.48    4.98  100000  |     0.07      0.41
+2023-10-05 07:17:17,583 [INFO] | 6.00e+04       357  |    34.98    3.93  100000  |     0.00      0.42
+2023-10-05 07:19:16,937 [INFO] | 8.00e+04       476  |    34.94    1.43  100000  |     0.00      0.43
+2023-10-05 07:21:16,301 [INFO] | 1.00e+05       595  |    33.39    1.55  100000  |     0.00      0.43

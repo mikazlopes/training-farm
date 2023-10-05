@@ -1,0 +1,38 @@
+2023-10-03 12:40:30,839 [ERROR] trainer5/trainer5.py Failed to reconnect: Already connected
+Traceback (most recent call last):
+  File "/Users/miguellopes/Documents/pod-trader/trainer5/trainer5.py", line 102, in disconnect
+    sio.connect('http://localhost:5678')
+  File "/Users/miguellopes/miniforge3/envs/trader/lib/python3.10/site-packages/socketio/client.py", line 306, in connect
+    raise exceptions.ConnectionError('Already connected')
+socketio.exceptions.ConnectionError: Already connected
+2023-10-03 12:40:32,598 [WARNING] Namespace error occurred: / is not a connected namespace.
+2023-10-03 14:15:41,370 [ERROR] packet queue is empty, aborting
+2023-10-03 17:16:50,056 [ERROR] packet queue is empty, aborting
+2023-10-03 17:23:00,229 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-03 17:24:51,932 [INFO] | 2.00e+04       112  |     0.00    0.00  200000  |     0.00      0.00
+2023-10-03 17:26:42,511 [INFO] | 4.00e+04       222  |     0.00    0.00  200000  |     0.00      0.01
+2023-10-03 17:28:34,621 [INFO] | 6.00e+04       334  |     0.00    0.00  200000  |     0.00      0.01
+2023-10-03 17:30:29,886 [INFO] | 8.00e+04       450  |     0.00    0.00  200000  |     0.00      0.02
+2023-10-03 17:32:22,426 [INFO] | 1.00e+05       562  |     0.00    0.00  200000  |     0.00      0.01
+2023-10-03 17:34:48,271 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-03 17:36:42,938 [INFO] | 2.00e+04       115  |   -79.57    2.26  200000  |     0.21      0.01
+2023-10-03 17:38:36,687 [INFO] | 4.00e+04       228  |   -75.51    1.94  200000  |     0.29      0.01
+2023-10-03 17:40:35,030 [INFO] | 6.00e+04       347  |   -77.27    1.63  200000  |     0.31      0.02
+2023-10-03 17:42:33,278 [INFO] | 8.00e+04       465  |   -76.09    1.76  200000  |     0.13      0.03
+2023-10-03 17:44:31,039 [INFO] | 1.00e+05       583  |   -77.10    2.46  200000  |     0.22      0.01
