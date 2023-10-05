@@ -130,7 +130,9 @@ app = Flask(__name__)
 sio = SocketIO(app, cors_allowed_origins="*")
 collected_values = {'trainer1/trainer1.py': deque(maxlen=5),
                     'trainer2/trainer2.py': deque(maxlen=5),
-                    'trainer3/trainer3.py': deque(maxlen=5)}
+                    'trainer3/trainer3.py': deque(maxlen=5),
+                    'trainer4/trainer4.py': deque(maxlen=5),
+                    'trainer5/trainer5.py': deque(maxlen=5)}
 
 
 def write_processes_to_csv(file_path, script, uid, return_value, config):
@@ -149,8 +151,6 @@ def index():
 def on_connect():
     logger.info("Client Connected - Server side")
     sio.start_background_task(monitor_processes, current_app._get_current_object())
-
-
 
 @sio.on('disconnect')
 def on_disconnect():
@@ -209,13 +209,15 @@ signal.signal(signal.SIGINT, exit_handler)
 def start_scripts(scripts, manager):
     for script in scripts:
         uid = manager.start_process(script)
-        time.sleep(60)  # Delay of 60 seconds between starting each script
+        time.sleep(300)  # Delay of 60 seconds between starting each script
 
 
 if __name__ == "__main__":
-    scripts = ['trainer1/trainer1.py', 
+    scripts = [ 'trainer1/trainer1.py', 
                 'trainer2/trainer2.py',
-                'trainer3/trainer3.py']
+                'trainer3/trainer3.py',
+                'trainer4/trainer4.py',
+                'trainer5/trainer5.py']
     configurations = generate_combinations()
     manager = ProcessManager(configurations=configurations)
     
