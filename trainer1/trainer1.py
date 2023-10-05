@@ -80,12 +80,9 @@ state_dim = 1 + 2 + 3 * action_dim + len(INDICATORS) * action_dim
 sio = socketio.Client()
 script_name = id_name + '/' + id_name + '.py'  
 
-sio = socketio.Client()
-script_name = id_name + '/' + id_name + '.py'  
-
 @sio.event
 def connect():
-    print('Connection established')
+    print(f'Connection established by {id_name}')
     sio.start_background_task(send_heartbeat)  # Start the heartbeat task on connect
 
 @sio.on('terminate_yourself')

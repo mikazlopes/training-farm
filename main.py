@@ -123,7 +123,7 @@ def monitor_processes(app):
                 last_time = manager.last_active.get(script, now)
                 if now - last_time > timedelta(seconds=60):
                     logger.info(f"{script} has been inactive. Restarting...")
-                    manager.restart_process(script, force_kill=True)
+                    #manager.restart_process(script, force_kill=True)
             sio.sleep(1)  # Check every second
 
 app = Flask(__name__)
@@ -133,7 +133,8 @@ collected_values = {'trainer1/trainer1.py': deque(maxlen=5),
                     'trainer3/trainer3.py': deque(maxlen=5),
                     'trainer4/trainer4.py': deque(maxlen=5),
                     'trainer5/trainer5.py': deque(maxlen=5),
-                    'trainer6/trainer6.py': deque(maxlen=5)}
+                    'trainer6/trainer6.py': deque(maxlen=5),
+                    'trainer7/trainer7.py': deque(maxlen=5)}
 
 
 def write_processes_to_csv(file_path, script, uid, return_value, config):
@@ -151,7 +152,7 @@ def index():
 @sio.on('connect')
 def on_connect():
     logger.info("Client Connected - Server side")
-    sio.start_background_task(monitor_processes, current_app._get_current_object())
+    #sio.start_background_task(monitor_processes, current_app._get_current_object())
 
 @sio.on('disconnect')
 def on_disconnect():
@@ -219,7 +220,9 @@ if __name__ == "__main__":
                 'trainer3/trainer3.py',
                 'trainer4/trainer4.py',
                 'trainer5/trainer5.py',
-                'trainer6/trainer6.py']
+                'trainer6/trainer6.py',
+                'trainer7/trainer7.py']
+    
     configurations = generate_combinations()
     manager = ProcessManager(configurations=configurations)
     

@@ -32,7 +32,7 @@ import threading
 import ast
 from datetime import datetime, timedelta
 
-id_name = 'trainer5'
+id_name = 'trainer7'
 
 logging.basicConfig(
         level=logging.INFO,

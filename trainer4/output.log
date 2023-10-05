@@ -53,3 +53,25 @@ socketio.exceptions.ConnectionError: Already connected
 2023-10-05 10:50:20,050 [INFO] | 6.00e+04      1114  |     2.03    3.21  300000  |     0.00      0.43
 2023-10-05 10:56:26,534 [INFO] | 8.00e+04      1480  |     7.26    3.53  300000  |     0.00      0.43
 2023-10-05 11:02:28,784 [INFO] | 1.00e+05      1842  |    13.04    6.47  300000  |     0.00      0.43
+2023-10-05 11:11:10,788 [INFO] price_array: 72540
+2023-10-05 11:11:10,790 [INFO] | load actor from: ./trained_models/trainer4-87cd7-steps-300000[256, 128]-2019-01-01/actor.pth
+2023-10-05 11:11:21,046 [INFO] Test Finished!
+2023-10-05 11:11:21,047 [INFO] episode_return: 1.260114880169666
+2023-10-05 13:23:15,254 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-05 13:29:39,506 [INFO] | 2.00e+04       384  |     7.80    7.41  300000  |     0.00      0.44
+2023-10-05 13:35:57,014 [INFO] | 4.00e+04       762  |     4.46    8.08  300000  |     0.00      0.43
+2023-10-05 13:42:18,887 [INFO] | 6.00e+04      1144  |    -0.51    7.46  300000  |     0.00      0.42
+2023-10-05 13:48:26,875 [INFO] | 8.00e+04      1512  |     5.76    6.36  300000  |     0.00      0.46
+2023-10-05 13:54:29,281 [INFO] | 1.00e+05      1874  |    -0.15    7.86  300000  |     0.00      0.42
+2023-10-05 14:02:55,798 [INFO] price_array: 72540
+2023-10-05 14:02:55,800 [INFO] | load actor from: ./trained_models/trainer4-a9ac7-steps-300000[256, 128]-2019-01-01/actor.pth
+2023-10-05 14:03:06,803 [INFO] Test Finished!
+2023-10-05 14:03:06,803 [INFO] episode_return: 1.7773084867574533

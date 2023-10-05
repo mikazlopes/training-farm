@@ -23,3 +23,21 @@ socketio.exceptions.ConnectionError: Already connected
 2023-10-05 10:59:03,220 [INFO] | load actor from: ./trained_models/trainer6-03e47-steps-100000[256, 128]-2019-01-01/actor.pth
 2023-10-05 10:59:13,431 [INFO] Test Finished!
 2023-10-05 10:59:13,431 [INFO] episode_return: 1.130486465312116
+2023-10-05 13:32:43,055 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-05 13:34:50,472 [INFO] | 2.00e+04       127  |    -0.63    0.07  100000  |     0.01      0.43
+2023-10-05 13:36:56,012 [INFO] | 4.00e+04       253  |    -0.60    0.05  100000  |     0.00      0.44
+2023-10-05 13:39:01,203 [INFO] | 6.00e+04       378  |    -0.89    0.28  100000  |     0.00      0.43
+2023-10-05 13:41:02,244 [INFO] | 8.00e+04       499  |    -0.58    0.03  100000  |     0.00      0.42
+2023-10-05 13:43:04,421 [INFO] | 1.00e+05       621  |    -0.55    0.05  100000  |     0.00      0.44
+2023-10-05 13:51:39,305 [INFO] price_array: 72540
+2023-10-05 13:51:39,309 [INFO] | load actor from: ./trained_models/trainer6-cd8ff-steps-100000[256, 128]-2019-01-01/actor.pth
+2023-10-05 13:51:49,604 [INFO] Test Finished!
+2023-10-05 13:51:49,606 [INFO] episode_return: 1.5002118825486825
