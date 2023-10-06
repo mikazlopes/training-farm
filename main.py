@@ -134,7 +134,15 @@ collected_values = {'trainer1/trainer1.py': deque(maxlen=5),
                     'trainer4/trainer4.py': deque(maxlen=5),
                     'trainer5/trainer5.py': deque(maxlen=5),
                     'trainer6/trainer6.py': deque(maxlen=5),
-                    'trainer7/trainer7.py': deque(maxlen=5)}
+                    'trainer7/trainer7.py': deque(maxlen=5),
+                    'trainer8/trainer8.py': deque(maxlen=5),
+                    'trainer9/trainer9.py': deque(maxlen=5),
+                    'trainer10/trainer10.py': deque(maxlen=5),
+                    'trainer11/trainer11.py': deque(maxlen=5),
+                    'trainer12/trainer12.py': deque(maxlen=5),
+                    'trainer13/trainer13.py': deque(maxlen=5),
+                    'trainer14/trainer14.py': deque(maxlen=5),
+                    'trainer15/trainer15.py': deque(maxlen=5)}
 
 
 def write_processes_to_csv(file_path, script, uid, return_value, config):
@@ -221,7 +229,15 @@ if __name__ == "__main__":
                 'trainer4/trainer4.py',
                 'trainer5/trainer5.py',
                 'trainer6/trainer6.py',
-                'trainer7/trainer7.py']
+                'trainer7/trainer7.py',
+                'trainer8/trainer8.py',
+                'trainer9/trainer9.py', 
+                'trainer10/trainer10.py',
+                'trainer11/trainer11.py',
+                'trainer12/trainer12.py',
+                'trainer13/trainer13.py',
+                'trainer14/trainer14.py',
+                'trainer15/trainer15.py']
     
     configurations = generate_combinations()
     manager = ProcessManager(configurations=configurations)
