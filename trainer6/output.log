@@ -95,3 +95,274 @@ socketio.exceptions.ConnectionError: Already connected
 2023-10-05 17:49:20,504 [INFO] | load actor from: ./trained_models/trainer6-fe1a1-steps-100000[512, 256, 128]-2019-01-01/actor.pth
 2023-10-05 17:49:30,486 [INFO] Test Finished!
 2023-10-05 17:49:30,487 [INFO] episode_return: 0.6898716380183716
+2023-10-05 18:37:32,790 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-05 18:45:42,637 [INFO] | 2.00e+04       490  |   -17.60   17.41  300000  |     0.00      0.43
+2023-10-05 18:54:05,079 [INFO] | 4.00e+04       992  |   -24.28   10.94  300000  |     0.00      0.42
+2023-10-05 19:02:11,476 [INFO] | 6.00e+04      1479  |   -25.40    5.33  300000  |     0.00      0.42
+2023-10-05 19:10:34,962 [INFO] | 8.00e+04      1982  |   -18.74    7.12  300000  |     0.00      0.42
+2023-10-05 19:18:28,600 [INFO] | 1.00e+05      2456  |   -18.92    9.57  300000  |     0.00      0.42
+2023-10-05 19:27:52,191 [INFO] price_array: 72540
+2023-10-05 19:27:52,198 [INFO] | load actor from: ./trained_models/trainer6-1a85b-steps-300000[1024, 512]-2019-01-01/actor.pth
+2023-10-05 19:28:04,440 [INFO] Test Finished!
+2023-10-05 19:28:04,441 [INFO] episode_return: 0.6542451499572084
+2023-10-05 20:21:59,748 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-05 20:26:15,254 [INFO] | 2.00e+04       256  |     4.30    1.40  200000  |     0.00      0.44
+2023-10-05 20:30:26,129 [INFO] | 4.00e+04       506  |     2.81    1.22  200000  |     0.00      0.42
+2023-10-05 20:34:41,664 [INFO] | 6.00e+04       762  |     2.31    1.47  200000  |     0.00      0.42
+2023-10-05 20:39:01,527 [INFO] | 8.00e+04      1022  |     3.91    1.39  200000  |     0.00      0.43
+2023-10-05 20:43:17,621 [INFO] | 1.00e+05      1278  |     3.02    1.71  200000  |     0.00      0.44
+2023-10-05 20:53:01,579 [INFO] price_array: 72540
+2023-10-05 20:53:01,582 [INFO] | load actor from: ./trained_models/trainer6-e16e3-steps-200000[512, 256]-2019-01-01/actor.pth
+2023-10-05 20:53:10,800 [INFO] Test Finished!
+2023-10-05 20:53:10,800 [INFO] episode_return: 1.4915765805958754
+2023-10-05 21:48:31,603 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-05 21:50:30,900 [INFO] | 2.00e+04       119  |     0.12    0.10  100000  |     0.00      0.43
+2023-10-05 21:52:27,447 [INFO] | 4.00e+04       236  |     0.08    0.09  100000  |     0.00      0.42
+2023-10-05 21:54:21,262 [INFO] | 6.00e+04       350  |     0.10    0.11  100000  |     0.00      0.43
+2023-10-05 21:56:15,383 [INFO] | 8.00e+04       464  |     0.12    0.21  100000  |     0.00      0.43
+2023-10-05 21:58:10,482 [INFO] | 1.00e+05       579  |     0.03    0.10  100000  |     0.00      0.41
+2023-10-05 22:08:23,731 [INFO] price_array: 72540
+2023-10-05 22:08:23,736 [INFO] | load actor from: ./trained_models/trainer6-b50a0-steps-100000[512, 256, 128]-2019-01-01/actor.pth
+2023-10-05 22:08:33,256 [INFO] Test Finished!
+2023-10-05 22:08:33,257 [INFO] episode_return: 1.066855987264729
+2023-10-05 23:03:24,406 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-05 23:09:14,101 [INFO] | 2.00e+04       350  |     0.24   28.30  300000  |     0.00      0.43
+2023-10-05 23:14:41,989 [INFO] | 4.00e+04       678  |    -3.00   24.19  300000  |     0.00      0.42
+2023-10-05 23:20:14,900 [INFO] | 6.00e+04      1010  |     9.44   16.76  300000  |     0.00      0.42
+2023-10-05 23:25:38,293 [INFO] | 8.00e+04      1334  |    -2.99   27.10  300000  |     0.00      0.42
+2023-10-05 23:31:01,597 [INFO] | 1.00e+05      1657  |     3.92   19.31  300000  |     0.00      0.41
+2023-10-05 23:39:28,751 [INFO] price_array: 72540
+2023-10-05 23:39:28,753 [INFO] | load actor from: ./trained_models/trainer6-65748-steps-300000[128, 64, 32]-2019-01-01/actor.pth
+2023-10-05 23:39:38,316 [INFO] Test Finished!
+2023-10-05 23:39:38,316 [INFO] episode_return: 1.3079478338875774
+2023-10-06 00:28:37,573 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-06 00:35:43,362 [INFO] | 2.00e+04       426  |     1.65    4.14  300000  |     0.00      0.41
+2023-10-06 00:42:30,726 [INFO] | 4.00e+04       833  |     0.74   13.24  300000  |     0.00      0.43
+2023-10-06 00:49:24,198 [INFO] | 6.00e+04      1247  |     1.42    2.28  300000  |     0.00      0.43
+2023-10-06 00:56:07,458 [INFO] | 8.00e+04      1650  |     7.90    3.13  300000  |     0.00      0.42
+2023-10-06 01:03:01,971 [INFO] | 1.00e+05      2064  |    -8.61   40.03  300000  |     0.00      0.44
+2023-10-06 01:11:43,347 [INFO] price_array: 72540
+2023-10-06 01:11:43,350 [INFO] | load actor from: ./trained_models/trainer6-b7b94-steps-300000[512, 256]-2019-01-01/actor.pth
+2023-10-06 01:11:53,661 [INFO] Test Finished!
+2023-10-06 01:11:53,662 [INFO] episode_return: 1.2240056412308251
+2023-10-06 02:00:46,924 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-06 02:04:41,161 [INFO] | 2.00e+04       234  |     3.03    5.68  200000  |     0.00      0.42
+2023-10-06 02:08:43,653 [INFO] | 4.00e+04       477  |     0.88    4.88  200000  |     0.00      0.42
+2023-10-06 02:12:47,995 [INFO] | 6.00e+04       721  |    -2.10   10.51  200000  |     0.00      0.44
+2023-10-06 02:16:50,400 [INFO] | 8.00e+04       963  |    -3.93    6.54  200000  |     0.00      0.41
+2023-10-06 02:21:02,964 [INFO] | 1.00e+05      1216  |    -5.26    2.53  200000  |     0.00      0.42
+2023-10-06 02:29:38,245 [INFO] price_array: 72540
+2023-10-06 02:29:38,249 [INFO] | load actor from: ./trained_models/trainer6-d0cb0-steps-200000[512, 256, 128]-2019-01-01/actor.pth
+2023-10-06 02:29:48,219 [INFO] Test Finished!
+2023-10-06 02:29:48,220 [INFO] episode_return: 1.114225710878707
+2023-10-06 03:18:26,104 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-06 03:23:28,703 [INFO] | 2.00e+04       303  |    -3.58    2.29  200000  |     0.00      0.41
+2023-10-06 03:28:32,321 [INFO] | 4.00e+04       606  |    -5.64    4.11  200000  |     0.00      0.43
+2023-10-06 03:33:29,900 [INFO] | 6.00e+04       904  |    -3.49    3.69  200000  |     0.00      0.44
+2023-10-06 03:38:32,626 [INFO] | 8.00e+04      1207  |    -5.59    3.20  200000  |     0.00      0.43
+2023-10-06 03:43:48,025 [INFO] | 1.00e+05      1522  |    -6.20    5.12  200000  |     0.00      0.43
+2023-10-06 03:52:37,199 [INFO] price_array: 72540
+2023-10-06 03:52:37,206 [INFO] | load actor from: ./trained_models/trainer6-e008d-steps-200000[1024, 512]-2019-01-01/actor.pth
+2023-10-06 03:52:49,744 [INFO] Test Finished!
+2023-10-06 03:52:49,745 [INFO] episode_return: 0.8943941450979237
+2023-10-06 04:14:47,200 [ERROR] packet queue is empty, aborting
+2023-10-06 04:41:23,879 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-06 04:45:06,268 [INFO] | 2.00e+04       222  |     3.40    2.92  200000  |     0.00      0.41
+2023-10-06 04:48:51,946 [INFO] | 4.00e+04       448  |     4.40    4.03  200000  |     0.00      0.43
+2023-10-06 04:52:39,840 [INFO] | 6.00e+04       676  |     4.69    3.48  200000  |     0.00      0.43
+2023-10-06 04:56:28,370 [INFO] | 8.00e+04       904  |     5.23    2.86  200000  |     0.00      0.42
+2023-10-06 05:00:22,132 [INFO] | 1.00e+05      1138  |     5.96    3.23  200000  |     0.00      0.43
+2023-10-06 05:09:01,230 [INFO] price_array: 72540
+2023-10-06 05:09:01,233 [INFO] | load actor from: ./trained_models/trainer6-e2941-steps-200000[128, 64]-2019-01-01/actor.pth
+2023-10-06 05:09:10,288 [INFO] Test Finished!
+2023-10-06 05:09:10,288 [INFO] episode_return: 1.4538588831667962
+2023-10-06 05:56:59,013 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-06 06:00:35,746 [INFO] | 2.00e+04       217  |    17.28    7.02  200000  |     0.00      0.43
+2023-10-06 06:04:06,208 [INFO] | 4.00e+04       427  |    15.88    5.46  200000  |     0.00      0.44
+2023-10-06 06:07:36,692 [INFO] | 6.00e+04       638  |    18.18    5.36  200000  |     0.00      0.42
+2023-10-06 06:11:14,043 [INFO] | 8.00e+04       855  |    17.62    6.91  200000  |     0.00      0.42
+2023-10-06 06:14:48,080 [INFO] | 1.00e+05      1069  |    17.59    6.47  200000  |     0.00      0.41
+2023-10-06 06:23:00,161 [INFO] price_array: 72540
+2023-10-06 06:23:00,163 [INFO] | load actor from: ./trained_models/trainer6-b7ce0-steps-200000[128, 64, 32]-2019-01-01/actor.pth
+2023-10-06 06:23:10,196 [INFO] Test Finished!
+2023-10-06 06:23:10,196 [INFO] episode_return: 1.9433228323257004
+2023-10-06 07:09:08,347 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-06 07:13:00,603 [INFO] | 2.00e+04       232  |    12.60    2.53  200000  |     0.00      0.42
+2023-10-06 07:16:48,197 [INFO] | 4.00e+04       460  |    10.19    2.54  200000  |     0.00      0.43
+2023-10-06 07:20:34,970 [INFO] | 6.00e+04       687  |     9.03    1.55  200000  |     0.00      0.43
+2023-10-06 07:24:18,649 [INFO] | 8.00e+04       910  |    12.49    2.76  200000  |     0.00      0.42
+2023-10-06 07:28:12,243 [INFO] | 1.00e+05      1144  |    13.30    2.57  200000  |     0.00      0.43
+2023-10-06 07:36:24,179 [INFO] price_array: 72540
+2023-10-06 07:36:24,182 [INFO] | load actor from: ./trained_models/trainer6-0aa55-steps-200000[256, 128]-2019-01-01/actor.pth
+2023-10-06 07:36:33,247 [INFO] Test Finished!
+2023-10-06 07:36:33,247 [INFO] episode_return: 0.9424824541375668
+2023-10-06 08:24:04,846 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-06 08:27:47,247 [INFO] | 2.00e+04       222  |     2.33    3.74  200000  |     0.00      0.43
+2023-10-06 08:31:26,219 [INFO] | 4.00e+04       441  |    -0.96    3.52  200000  |     0.00      0.41
+2023-10-06 08:35:04,022 [INFO] | 6.00e+04       659  |     1.90    3.19  200000  |     0.00      0.41
+2023-10-06 08:38:42,611 [INFO] | 8.00e+04       878  |    -1.02    2.90  200000  |     0.00      0.43
+2023-10-06 08:42:29,804 [INFO] | 1.00e+05      1105  |    -2.10    2.59  200000  |     0.00      0.43
+2023-10-06 08:50:47,253 [INFO] price_array: 72540
+2023-10-06 08:50:47,255 [INFO] | load actor from: ./trained_models/trainer6-caf53-steps-200000[256, 128, 64]-2019-01-01/actor.pth
+2023-10-06 08:50:56,366 [INFO] Test Finished!
+2023-10-06 08:50:56,366 [INFO] episode_return: 0.9271242299818994
+2023-10-06 09:39:41,465 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-06 09:43:46,245 [INFO] | 2.00e+04       245  |    -6.07    2.50  200000  |     0.00      0.42
+2023-10-06 09:47:52,964 [INFO] | 4.00e+04       491  |    -4.95    4.53  200000  |     0.00      0.43
+2023-10-06 09:51:56,790 [INFO] | 6.00e+04       735  |    -3.99    2.98  200000  |     0.00      0.43
+2023-10-06 09:55:59,348 [INFO] | 8.00e+04       978  |    -5.39    4.22  200000  |     0.00      0.44
+2023-10-06 10:00:02,534 [INFO] | 1.00e+05      1221  |    -5.82    3.78  200000  |     0.00      0.43
+2023-10-06 10:09:48,620 [INFO] price_array: 72540
+2023-10-06 10:09:48,625 [INFO] | load actor from: ./trained_models/trainer6-a7b33-steps-200000[512, 256]-2019-01-01/actor.pth
+2023-10-06 10:09:58,155 [INFO] Test Finished!
+2023-10-06 10:09:58,155 [INFO] episode_return: 1.9123741892402657
+2023-10-06 11:03:09,731 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-06 11:07:10,873 [INFO] | 2.00e+04       241  |    14.25   15.43  200000  |     0.00      0.42
+2023-10-06 11:11:10,695 [INFO] | 4.00e+04       481  |    10.97   14.73  200000  |     0.00      0.42
+2023-10-06 11:15:07,023 [INFO] | 6.00e+04       717  |     5.31   12.27  200000  |     0.00      0.42
+2023-10-06 11:19:06,506 [INFO] | 8.00e+04       957  |    10.89    9.98  200000  |     0.00      0.42
+2023-10-06 11:23:11,879 [INFO] | 1.00e+05      1202  |    21.25   14.57  200000  |     0.00      0.42
+2023-10-06 11:32:14,667 [INFO] price_array: 72540
+2023-10-06 11:32:14,673 [INFO] | load actor from: ./trained_models/trainer6-b096c-steps-200000[512, 256, 128]-2019-01-01/actor.pth
+2023-10-06 11:32:24,061 [INFO] Test Finished!
+2023-10-06 11:32:24,061 [INFO] episode_return: 1.6980312422237398
+2023-10-06 12:22:51,349 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-06 12:28:52,654 [INFO] | 2.00e+04       361  |     7.72    3.33  200000  |     0.00      0.44
+2023-10-06 12:34:02,444 [INFO] | 4.00e+04       671  |     2.20    1.90  200000  |     0.00      0.42
+2023-10-06 12:39:32,068 [INFO] | 6.00e+04      1001  |     7.86    8.88  200000  |     0.00      0.43
+2023-10-06 12:44:48,121 [INFO] | 8.00e+04      1317  |    -1.43    4.55  200000  |     0.00      0.42
+2023-10-06 12:50:08,522 [INFO] | 1.00e+05      1637  |    -2.64    5.55  200000  |     0.00      0.43
+2023-10-06 12:58:38,378 [INFO] price_array: 72540
+2023-10-06 12:58:38,386 [INFO] | load actor from: ./trained_models/trainer6-4e302-steps-200000[1024, 512]-2019-01-01/actor.pth
+2023-10-06 12:58:51,039 [INFO] Test Finished!
+2023-10-06 12:58:51,040 [INFO] episode_return: 0.877690507312632
+2023-10-06 13:48:28,773 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-06 13:52:38,212 [INFO] | 2.00e+04       249  |    15.37    5.07  200000  |     0.00      0.41
+2023-10-06 13:56:43,627 [INFO] | 4.00e+04       495  |    15.94    5.77  200000  |     0.00      0.42
+2023-10-06 14:00:47,721 [INFO] | 6.00e+04       739  |    17.35    6.47  200000  |     0.00      0.43
+2023-10-06 14:04:57,941 [INFO] | 8.00e+04       989  |    16.45    7.20  200000  |     0.00      0.42
+2023-10-06 14:09:01,289 [INFO] | 1.00e+05      1233  |    15.52    4.09  200000  |     0.00      0.43
+2023-10-06 14:17:57,370 [INFO] price_array: 72540
+2023-10-06 14:17:57,371 [INFO] | load actor from: ./trained_models/trainer6-6d0e4-steps-200000[128, 64]-2019-01-01/actor.pth
+2023-10-06 14:18:06,845 [INFO] Test Finished!
+2023-10-06 14:18:06,846 [INFO] episode_return: 1.3551187033264642
