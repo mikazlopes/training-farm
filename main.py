@@ -128,21 +128,21 @@ def monitor_processes(app):
 
 app = Flask(__name__)
 sio = SocketIO(app, cors_allowed_origins="*")
-collected_values = {'trainer1/trainer1.py': deque(maxlen=5),
-                    'trainer2/trainer2.py': deque(maxlen=5),
-                    'trainer3/trainer3.py': deque(maxlen=5),
-                    'trainer4/trainer4.py': deque(maxlen=5),
-                    'trainer5/trainer5.py': deque(maxlen=5),
-                    'trainer6/trainer6.py': deque(maxlen=5),
-                    'trainer7/trainer7.py': deque(maxlen=5),
-                    'trainer8/trainer8.py': deque(maxlen=5),
-                    'trainer9/trainer9.py': deque(maxlen=5),
-                    'trainer10/trainer10.py': deque(maxlen=5),
-                    'trainer11/trainer11.py': deque(maxlen=5),
-                    'trainer12/trainer12.py': deque(maxlen=5),
-                    'trainer13/trainer13.py': deque(maxlen=5),
-                    'trainer14/trainer14.py': deque(maxlen=5),
-                    'trainer15/trainer15.py': deque(maxlen=5)}
+collected_values = {'trainer1/trainer1.py': deque(maxlen=3),
+                    'trainer2/trainer2.py': deque(maxlen=3),
+                    'trainer3/trainer3.py': deque(maxlen=3),
+                    'trainer4/trainer4.py': deque(maxlen=3),
+                    'trainer5/trainer5.py': deque(maxlen=3),
+                    'trainer6/trainer6.py': deque(maxlen=3),
+                    'trainer7/trainer7.py': deque(maxlen=3),
+                    'trainer8/trainer8.py': deque(maxlen=3),
+                    'trainer9/trainer9.py': deque(maxlen=3),
+                    'trainer10/trainer10.py': deque(maxlen=3),
+                    'trainer11/trainer11.py': deque(maxlen=3),
+                    'trainer12/trainer12.py': deque(maxlen=3),
+                    'trainer13/trainer13.py': deque(maxlen=3),
+                    'trainer14/trainer14.py': deque(maxlen=3),
+                    'trainer15/trainer15.py': deque(maxlen=3)}
 
 
 def write_processes_to_csv(file_path, script, uid, return_value, config):
@@ -189,8 +189,8 @@ def handle_message(data):
             return  # terminate the function early if the script name is invalid
         collected_values[script].append(value)
         logger.info(collected_values[script])
-        if len(collected_values[script]) == 5:
-            average = sum(collected_values[script]) / 5
+        if len(collected_values[script]) == 3:
+            average = sum(collected_values[script]) / 3
             if average < 150:
                 logger.info(f"Average for {script} too low, killing training")
                 #Send termination signal
@@ -230,14 +230,7 @@ if __name__ == "__main__":
                 'trainer5/trainer5.py',
                 'trainer6/trainer6.py',
                 'trainer7/trainer7.py',
-                'trainer8/trainer8.py',
-                'trainer9/trainer9.py', 
-                'trainer10/trainer10.py',
-                'trainer11/trainer11.py',
-                'trainer12/trainer12.py',
-                'trainer13/trainer13.py',
-                'trainer14/trainer14.py',
-                'trainer15/trainer15.py']
+                'trainer8/trainer8.py']
     
     configurations = generate_combinations()
     manager = ProcessManager(configurations=configurations)

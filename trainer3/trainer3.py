@@ -762,7 +762,7 @@ train(start_date = TRAIN_START_DATE,
     API_BASE_URL = API_BASE_URL,
     erl_params=ERL_PARAMS,
     cwd='./trained_models/' + id_name + '-' + str(script_uid) + '-steps-' + str(totalTimesteps) + str(ERL_PARAMS["net_dimension"]) + '-' + TRAIN_START_DATE,  #current_working_dir,
-    break_step=1e5)
+    break_step=1e6)
    
 
 
