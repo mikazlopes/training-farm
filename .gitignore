@@ -3,6 +3,7 @@ processes.csv
 *.log
 .DS_Store
 *.pth
+cache/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

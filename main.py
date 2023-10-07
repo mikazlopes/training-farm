@@ -229,8 +229,7 @@ if __name__ == "__main__":
                 'trainer4/trainer4.py',
                 'trainer5/trainer5.py',
                 'trainer6/trainer6.py',
-                'trainer7/trainer7.py',
-                'trainer8/trainer8.py']
+                'trainer7/trainer7.py']
     
     configurations = generate_combinations()
     manager = ProcessManager(configurations=configurations)
