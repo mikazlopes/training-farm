@@ -642,3 +642,419 @@ socketio.exceptions.ConnectionError: Already connected
 2023-10-07 08:56:15,803 [WARNING] sleep 3 seconds and retrying https://data.alpaca.markets/v2/stocks/V/bars 3 more time(s)...
 2023-10-07 08:56:15,835 [WARNING] sleep 3 seconds and retrying https://data.alpaca.markets/v2/stocks/PYPL/bars 3 more time(s)...
 2023-10-07 08:56:16,438 [WARNING] sleep 3 seconds and retrying https://data.alpaca.markets/v2/stocks/DIS/bars 3 more time(s)...
+2023-10-07 21:22:02,283 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-07 21:35:55,329 [INFO] | 2.00e+04       833  |     9.99    4.42  500000  |     0.00      0.42
+2023-10-07 22:05:39,057 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-07 22:11:44,053 [INFO] | 2.00e+04       365  |     4.57    7.10  300000  |     0.00      0.42
+2023-10-07 22:22:48,053 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-07 22:29:06,493 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-07 22:35:48,699 [INFO] | 2.00e+04       402  |   -20.59   30.32  300000  |     0.00      0.44
+2023-10-07 22:42:41,593 [INFO] | 4.00e+04       815  |     9.89   20.96  300000  |     0.00      0.43
+2023-10-07 23:04:00,486 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-07 23:09:54,358 [INFO] | 2.00e+04       354  |    24.47    3.06  300000  |     0.00      0.44
+2023-10-07 23:25:36,831 [INFO] Connection established by trainer4
+2023-10-07 23:25:36,832 [INFO] Successfully joined room!
+2023-10-07 23:26:05,547 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-07 23:32:39,214 [INFO] | 2.00e+04       394  |   -22.91   11.77  300000  |     0.00      0.43
+2023-10-07 23:37:00,102 [INFO] Connection established by trainer4
+2023-10-07 23:37:00,103 [INFO] Successfully joined room!
+2023-10-07 23:37:27,617 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-07 23:43:57,641 [INFO] | 2.00e+04       390  |   -24.93   14.67  300000  |     0.00      0.43
+2023-10-07 23:51:26,090 [INFO] Connection established by trainer4
+2023-10-07 23:51:26,091 [INFO] Successfully joined room!
+2023-10-07 23:52:07,244 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-08 00:03:04,871 [INFO] | 2.00e+04       658  |     7.17   13.02  500000  |     0.00      0.42
+2023-10-08 00:13:41,420 [INFO] | 4.00e+04      1294  |     6.16    9.44  500000  |     0.00      0.41
+2023-10-08 00:24:24,661 [INFO] | 6.00e+04      1937  |    18.52   10.22  500000  |     0.00      0.42
+2023-10-08 00:24:24,665 [INFO] Received termination signal for trainer4. Exiting...
+2023-10-08 00:24:29,063 [INFO] Connection established by trainer4
+2023-10-08 00:24:29,064 [INFO] Successfully joined room!
+2023-10-08 00:25:14,485 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-08 00:35:21,789 [INFO] | 2.00e+04       607  |    32.49   32.41  500000  |     0.00      0.43
+2023-10-08 00:45:41,305 [INFO] | 4.00e+04      1227  |    15.67   12.21  500000  |     0.00      0.42
+2023-10-08 00:55:53,803 [INFO] | 6.00e+04      1839  |    30.98   22.18  500000  |     0.00      0.42
+2023-10-08 00:55:53,806 [INFO] Received termination signal for trainer4. Exiting...
+2023-10-08 00:55:58,389 [INFO] Connection established by trainer4
+2023-10-08 00:55:58,390 [INFO] Successfully joined room!
+2023-10-08 00:56:43,014 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-08 01:08:20,714 [INFO] | 2.00e+04       698  |    14.03   37.50  500000  |     0.00      0.43
+2023-10-08 01:19:30,111 [INFO] | 4.00e+04      1367  |    28.24   19.03  500000  |     0.00      0.43
+2023-10-08 01:30:35,094 [INFO] | 6.00e+04      2032  |    28.01   12.80  500000  |     0.00      0.43
+2023-10-08 01:30:35,098 [INFO] Received termination signal for trainer4. Exiting...
+2023-10-08 01:30:39,519 [INFO] Connection established by trainer4
+2023-10-08 01:30:39,520 [INFO] Successfully joined room!
+2023-10-08 01:31:27,068 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-08 01:43:27,855 [INFO] | 2.00e+04       721  |    12.35   11.93  500000  |     0.00      0.43
+2023-10-08 01:55:28,999 [INFO] | 4.00e+04      1442  |     0.94   12.27  500000  |     0.00      0.44
+2023-10-08 02:06:59,250 [INFO] | 6.00e+04      2132  |    12.07   14.49  500000  |     0.00      0.42
+2023-10-08 02:06:59,254 [INFO] Received termination signal for trainer4. Exiting...
+2023-10-08 02:07:03,575 [INFO] Connection established by trainer4
+2023-10-08 02:07:03,576 [INFO] Successfully joined room!
+2023-10-08 02:07:47,992 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-08 02:17:34,157 [INFO] | 2.00e+04       586  |   -39.15   73.64  500000  |     0.00      0.42
+2023-10-08 02:27:50,271 [INFO] | 4.00e+04      1202  |     5.99   41.57  500000  |     0.00      0.43
+2023-10-08 02:38:09,356 [INFO] | 6.00e+04      1821  |   -63.67   80.48  500000  |     0.00      0.43
+2023-10-08 02:38:09,362 [INFO] Received termination signal for trainer4. Exiting...
+2023-10-08 02:38:13,854 [INFO] Connection established by trainer4
+2023-10-08 02:38:13,854 [INFO] Successfully joined room!
+2023-10-08 02:39:00,217 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-08 02:45:13,667 [INFO] | 2.00e+04       373  |     0.04    0.01  300000  |     0.00      0.44
+2023-10-08 02:51:23,920 [INFO] | 4.00e+04       744  |     0.02    0.05  300000  |     0.00      0.43
+2023-10-08 02:57:31,911 [INFO] | 6.00e+04      1112  |     0.02    0.04  300000  |     0.00      0.43
+2023-10-08 02:57:31,914 [INFO] Received termination signal for trainer4. Exiting...
+2023-10-08 02:57:36,247 [INFO] Connection established by trainer4
+2023-10-08 02:57:36,248 [INFO] Successfully joined room!
+2023-10-08 02:58:22,248 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-08 03:07:40,564 [INFO] | 2.00e+04       558  |    -3.62   10.51  400000  |     0.00      0.43
+2023-10-08 03:16:59,912 [INFO] | 4.00e+04      1118  |    -9.01   13.57  400000  |     0.00      0.42
+2023-10-08 03:26:12,239 [INFO] | 6.00e+04      1670  |   -14.35   13.68  400000  |     0.00      0.42
+2023-10-08 03:26:12,242 [INFO] Received termination signal for trainer4. Exiting...
+2023-10-08 03:26:16,879 [INFO] Connection established by trainer4
+2023-10-08 03:26:16,880 [INFO] Successfully joined room!
+2023-10-08 03:27:01,474 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-08 03:32:26,436 [INFO] | 2.00e+04       325  |     5.70    4.05  300000  |     0.00      0.43
+2023-10-08 03:37:50,835 [INFO] | 4.00e+04       649  |     6.47    4.17  300000  |     0.00      0.42
+2023-10-08 03:43:17,377 [INFO] | 6.00e+04       976  |     3.62    2.29  300000  |     0.00      0.41
+2023-10-08 03:43:17,379 [INFO] Received termination signal for trainer4. Exiting...
+2023-10-08 03:43:21,911 [INFO] Connection established by trainer4
+2023-10-08 03:43:21,912 [INFO] Successfully joined room!
+2023-10-08 03:44:06,121 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-08 03:52:00,255 [INFO] | 2.00e+04       474  |     0.49    7.71  400000  |     0.00      0.43
+2023-10-08 04:00:06,933 [INFO] | 4.00e+04       961  |    -0.19   13.84  400000  |     0.00      0.43
+2023-10-08 04:07:38,010 [INFO] | 6.00e+04      1412  |    11.81   10.29  400000  |     0.00      0.42
+2023-10-08 04:07:38,013 [INFO] Received termination signal for trainer4. Exiting...
+2023-10-08 04:07:42,348 [INFO] Connection established by trainer4
+2023-10-08 04:07:42,348 [INFO] Successfully joined room!
+2023-10-08 04:08:30,269 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-08 04:14:59,854 [INFO] | 2.00e+04       390  |     0.01    0.07  300000  |     0.00      0.42
+2023-10-08 04:21:19,722 [INFO] | 4.00e+04       769  |    -0.02    0.06  300000  |     0.00      0.44
+2023-10-08 04:27:45,749 [INFO] | 6.00e+04      1155  |     0.00    0.11  300000  |     0.00      0.43
+2023-10-08 04:27:45,754 [INFO] Received termination signal for trainer4. Exiting...
+2023-10-08 04:27:50,257 [INFO] Connection established by trainer4
+2023-10-08 04:27:50,257 [INFO] Successfully joined room!
+2023-10-08 04:28:35,862 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-08 04:35:49,993 [INFO] | 2.00e+04       434  |     0.03    0.05  300000  |     0.00      0.41
+2023-10-08 04:42:47,853 [INFO] | 4.00e+04       852  |     0.05    0.02  300000  |     0.00      0.42
+2023-10-08 04:50:17,782 [INFO] | 6.00e+04      1302  |     0.03    0.04  300000  |     0.00      0.42
+2023-10-08 04:50:17,784 [INFO] Received termination signal for trainer4. Exiting...
+2023-10-08 04:50:22,450 [INFO] Connection established by trainer4
+2023-10-08 04:50:22,450 [INFO] Successfully joined room!
+2023-10-08 04:51:06,920 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-08 04:58:47,191 [INFO] | 2.00e+04       460  |     0.74    5.14  400000  |     0.01      0.41
+2023-10-08 05:06:21,145 [INFO] | 4.00e+04       914  |    -0.01    1.87  400000  |     0.01      0.43
+2023-10-08 05:14:00,938 [INFO] | 6.00e+04      1374  |     0.99    2.52  400000  |     0.00      0.44
+2023-10-08 05:14:00,941 [INFO] Received termination signal for trainer4. Exiting...
+2023-10-08 05:14:05,519 [INFO] Connection established by trainer4
+2023-10-08 05:14:05,521 [INFO] Successfully joined room!
+2023-10-08 05:14:53,462 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-08 05:26:38,486 [INFO] | 2.00e+04       705  |   -28.83    9.62  500000  |     0.00      0.41
+2023-10-08 05:38:23,035 [INFO] | 4.00e+04      1410  |   -23.51   12.73  500000  |     0.00      0.42
+2023-10-08 05:50:03,070 [INFO] | 6.00e+04      2110  |   -12.16   12.15  500000  |     0.00      0.43
+2023-10-08 05:50:03,073 [INFO] Received termination signal for trainer4. Exiting...
+2023-10-08 05:50:07,489 [INFO] Connection established by trainer4
+2023-10-08 05:50:07,490 [INFO] Successfully joined room!
+2023-10-08 05:50:54,007 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-08 06:01:34,093 [INFO] | 2.00e+04       640  |   -37.36   15.94  500000  |     0.00      0.42
+2023-10-08 06:12:07,235 [INFO] | 4.00e+04      1273  |   -26.25   11.86  500000  |     0.00      0.43
+2023-10-08 06:22:51,394 [INFO] | 6.00e+04      1917  |   -33.06   22.71  500000  |     0.00      0.43
+2023-10-08 06:22:51,399 [INFO] Received termination signal for trainer4. Exiting...
+2023-10-08 06:22:55,853 [INFO] Connection established by trainer4
+2023-10-08 06:22:55,854 [INFO] Successfully joined room!
+2023-10-08 06:23:40,471 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-08 06:33:25,638 [INFO] | 2.00e+04       585  |    -2.70   34.19  500000  |     0.00      0.42
+2023-10-08 06:43:42,446 [INFO] | 4.00e+04      1202  |   -30.82   14.64  500000  |     0.00      0.43
+2023-10-08 06:53:53,272 [INFO] | 6.00e+04      1813  |     0.36   16.85  500000  |     0.00      0.42
+2023-10-08 06:53:53,277 [INFO] Received termination signal for trainer4. Exiting...
+2023-10-08 06:53:57,693 [INFO] Connection established by trainer4
+2023-10-08 06:53:57,694 [INFO] Successfully joined room!
+2023-10-08 06:54:44,296 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-08 07:02:40,589 [INFO] | 2.00e+04       476  |     8.18    3.71  400000  |     0.00      0.43
+2023-10-08 07:10:14,409 [INFO] | 4.00e+04       930  |     9.52    5.12  400000  |     0.00      0.43
+2023-10-08 07:18:02,944 [INFO] | 6.00e+04      1399  |     8.89    3.03  400000  |     0.00      0.42
+2023-10-08 07:18:02,951 [INFO] Received termination signal for trainer4. Exiting...
+2023-10-08 07:18:07,370 [INFO] Connection established by trainer4
+2023-10-08 07:18:07,371 [INFO] Successfully joined room!
+2023-10-08 07:18:55,077 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-08 07:34:55,030 [INFO] | 2.00e+04       960  |    -3.49    1.65  500000  |     0.00      0.43
+2023-10-08 07:52:25,192 [INFO] | 4.00e+04      2010  |    -0.97    1.12  500000  |     0.00      0.43
+2023-10-08 08:09:48,495 [INFO] | 6.00e+04      3053  |    -0.67    1.55  500000  |     0.00      0.44
+2023-10-08 08:09:48,501 [INFO] Received termination signal for trainer4. Exiting...
+2023-10-08 08:09:52,800 [INFO] Connection established by trainer4
+2023-10-08 08:09:52,801 [INFO] Successfully joined room!
+2023-10-08 08:10:39,568 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-08 08:20:39,816 [INFO] | 2.00e+04       600  |    23.09    9.28  500000  |     0.00      0.41
+2023-10-08 08:30:40,813 [INFO] | 4.00e+04      1201  |    22.19   13.41  500000  |     0.00      0.43
+2023-10-08 08:40:42,107 [INFO] | 6.00e+04      1803  |    27.37    8.76  500000  |     0.00      0.41
+2023-10-08 08:40:42,112 [INFO] Received termination signal for trainer4. Exiting...
+2023-10-08 08:40:46,599 [INFO] Connection established by trainer4
+2023-10-08 08:40:46,600 [INFO] Successfully joined room!
+2023-10-08 08:41:32,924 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-08 08:48:48,557 [INFO] | 2.00e+04       436  |    -0.11    0.03  300000  |     0.00      0.41
+2023-10-08 08:56:13,950 [INFO] | 4.00e+04       881  |    -0.11    0.03  300000  |     0.00      0.41
+2023-10-08 09:03:53,610 [INFO] | 6.00e+04      1341  |    -0.13    0.04  300000  |     0.00      0.42
+2023-10-08 09:03:53,613 [INFO] Received termination signal for trainer4. Exiting...
+2023-10-08 09:03:58,203 [INFO] Connection established by trainer4
+2023-10-08 09:03:58,204 [INFO] Successfully joined room!
+2023-10-08 09:04:42,722 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-08 09:12:10,486 [INFO] | 2.00e+04       448  |    -0.90    8.71  400000  |     0.00      0.41
+2023-10-08 09:19:48,937 [INFO] | 4.00e+04       906  |     0.17    8.93  400000  |     0.00      0.43
+2023-10-08 09:27:18,315 [INFO] | 6.00e+04      1356  |   -12.43   41.89  400000  |     0.00      0.44
+2023-10-08 09:27:18,319 [INFO] Received termination signal for trainer4. Exiting...
+2023-10-08 09:27:22,877 [INFO] Connection established by trainer4
+2023-10-08 09:27:22,877 [INFO] Successfully joined room!
+2023-10-08 09:28:09,162 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-08 09:37:06,357 [INFO] | 2.00e+04       537  |    -0.30    6.49  400000  |     0.00      0.42
+2023-10-08 09:45:50,504 [INFO] | 4.00e+04      1061  |    -2.43    5.40  400000  |     0.00      0.42
+2023-10-08 09:54:21,824 [INFO] | 6.00e+04      1573  |    -7.01    8.39  400000  |     0.00      0.44
+2023-10-08 09:54:21,827 [INFO] Received termination signal for trainer4. Exiting...
+2023-10-08 09:54:26,247 [INFO] Connection established by trainer4
+2023-10-08 09:54:26,248 [INFO] Successfully joined room!
+2023-10-08 09:55:13,634 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-08 10:01:54,324 [INFO] | 2.00e+04       401  |    -0.00    0.04  300000  |     0.01      0.42
+2023-10-08 10:08:18,673 [INFO] | 4.00e+04       785  |     0.04    0.06  300000  |     0.00      0.44
+2023-10-08 10:14:50,677 [INFO] | 6.00e+04      1177  |    -0.02    0.04  300000  |     0.00      0.43
+2023-10-08 10:14:50,680 [INFO] Received termination signal for trainer4. Exiting...
+2023-10-08 10:14:55,161 [INFO] Connection established by trainer4
+2023-10-08 10:14:55,162 [INFO] Successfully joined room!
+2023-10-08 10:15:41,039 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-08 10:30:59,597 [INFO] | 2.00e+04       919  |     7.77   17.36  500000  |     0.00      0.42

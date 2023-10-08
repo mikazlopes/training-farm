@@ -10,7 +10,7 @@ import time
 import signal  # for handling the Ctrl+C interruption
 import subprocess  # for starting the TrainerProcess
 from flask import Flask, current_app  # importing current_app
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, join_room
 from datetime import datetime, timedelta
 from collections import deque, OrderedDict
 from configurations import CONFIGURATIONS  # Importing the configuration file
@@ -93,10 +93,11 @@ class ProcessManager:
                 del self.processes[script]
             else:  # If it's due to a low average
                 # Inform the script to terminate itself
-                sio.emit('terminate_yourself', room=script)
+                sio.emit('terminate_yourself', {'script': script}, room=script)
                 # Optionally, you can add a wait period here and then forcefully terminate if the process doesn't shut down in the given period.
                 sio.sleep(5)
                 if script in self.processes:
+                    logger.info(f"Had to force kill {script}")
                     self.processes[script].terminate()
                     self.processes[script].process.wait()
                     del self.processes[script]
@@ -162,6 +163,12 @@ def on_connect():
     logger.info("Client Connected - Server side")
     #sio.start_background_task(monitor_processes, current_app._get_current_object())
 
+@sio.on('join')
+def on_join(data):
+    room = data['room']
+    join_room(room)
+    return {"status": "joined"}
+
 @sio.on('disconnect')
 def on_disconnect():
     logger.info(f"Client Disconnected - Server side")
@@ -188,15 +195,13 @@ def handle_message(data):
             logger.error("Invalid script name received: %s", script)
             return  # terminate the function early if the script name is invalid
         collected_values[script].append(value)
-        logger.info(collected_values[script])
+        logger.info(f'{script}: {collected_values[script]}')
         if len(collected_values[script]) == 3:
             average = sum(collected_values[script]) / 3
             if average < 150:
                 logger.info(f"Average for {script} too low, killing training")
-                #Send termination signal
-                sio.emit('terminate_process', {'script': script})
                 collected_values[script].clear()
-                uid = manager.start_process(script)
+                uid = manager.restart_process(script)
 
     elif message_type == 'returns':
         # Retrieving the configuration for the current script and UID
@@ -219,7 +224,9 @@ signal.signal(signal.SIGINT, exit_handler)
 def start_scripts(scripts, manager):
     for script in scripts:
         uid = manager.start_process(script)
-        time.sleep(1200)  # Delay of 60 seconds between starting each script
+        # Continuously poll until a value is received for the current script
+        while not collected_values[script]:
+            time.sleep(5)  # Check every 5 seconds
 
 
 if __name__ == "__main__":

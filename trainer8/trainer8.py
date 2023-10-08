@@ -83,13 +83,15 @@ script_name = id_name + '/' + id_name + '.py'
 
 @sio.event
 def connect():
+    sio.emit('join', {'room': id_name})
     print(f'Connection established by {id_name}')
     sio.start_background_task(send_heartbeat)  # Start the heartbeat task on connect
 
 @sio.on('terminate_yourself')
-def on_terminate():
-    logging.info(f"Received termination signal {id_name}. Exiting...")
-    sys.exit(0)
+def on_terminate(data):
+    if data and data.get('script') == id_name:
+        logging.info(f"Received termination signal for {id_name}. Exiting...")
+        sys.exit(0)
 
 def send_heartbeat():
     try:
@@ -114,6 +116,7 @@ def disconnect():
             logging.error(f"{id_name} Failed to reconnect: {e}", exc_info=True)
 
 sio.connect('http://localhost:5678')
+
 
 class ActorPPO(nn.Module):
     def __init__(self, dims: [int], state_dim: int, action_dim: int):

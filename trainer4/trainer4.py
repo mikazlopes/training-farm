@@ -83,20 +83,26 @@ script_name = id_name + '/' + id_name + '.py'
 
 @sio.event
 def connect():
-    print(f'Connection established by {id_name}')
-    sio.start_background_task(send_heartbeat)  # Start the heartbeat task on connect
+    sio.emit('join', {'room': script_name}, callback=joined_room)
+    logging.info(f'Connection established by {id_name}')
+    # Rest of your code
+
+def joined_room(data):
+    logging.info("Successfully joined room!")
+    sio.start_background_task(send_heartbeat)
 
 @sio.on('terminate_yourself')
-def on_terminate():
-    logging.info(f"Received termination signal {id_name}. Exiting...")
-    sys.exit(0)
+def on_terminate(data):
+    if data and data.get('script') == script_name:
+        logging.info(f"Received termination signal for {id_name}. Exiting...")
+        sys.exit(0)
 
 def send_heartbeat():
     try:
         while True:
             try:
                 if sio.connected:
-                    sio.emit('heartbeat', {'script': id_name})
+                    sio.emit('heartbeat', {'script': script_name})
                     time.sleep(5)  # Send heartbeat every 3 seconds
             except socketio.exceptions.BadNamespaceError as e:
                 logging.warning(f"Namespace error occurred: {e}")
@@ -105,7 +111,7 @@ def send_heartbeat():
 
 @sio.event
 def disconnect():
-    print(f'{script_name} - Disconnected from server')
+    print(f'{id_name} - Disconnected from server')
     time.sleep(10)  # wait for 10 seconds
     if not sio.connected:
         try:
@@ -114,6 +120,7 @@ def disconnect():
             logging.error(f"{id_name} Failed to reconnect: {e}", exc_info=True)
 
 sio.connect('http://localhost:5678')
+
 
 class ActorPPO(nn.Module):
     def __init__(self, dims: [int], state_dim: int, action_dim: int):
