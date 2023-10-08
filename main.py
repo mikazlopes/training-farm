@@ -219,7 +219,7 @@ signal.signal(signal.SIGINT, exit_handler)
 def start_scripts(scripts, manager):
     for script in scripts:
         uid = manager.start_process(script)
-        time.sleep(300)  # Delay of 60 seconds between starting each script
+        time.sleep(1200)  # Delay of 60 seconds between starting each script
 
 
 if __name__ == "__main__":

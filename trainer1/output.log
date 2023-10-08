@@ -1082,3 +1082,21 @@ socketio.exceptions.ConnectionError: Already connected
 2023-10-07 08:24:01,879 [WARNING] sleep 3 seconds and retrying https://data.alpaca.markets/v2/stocks/VIXY/bars 3 more time(s)...
 2023-10-07 08:24:04,906 [WARNING] sleep 3 seconds and retrying https://data.alpaca.markets/v2/stocks/VIXY/bars 2 more time(s)...
 2023-10-07 08:24:07,931 [WARNING] sleep 3 seconds and retrying https://data.alpaca.markets/v2/stocks/VIXY/bars 1 more time(s)...
+2023-10-07 20:12:11,838 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
+2023-10-07 20:13:28,849 [INFO] 
+| `step`: Number of samples, or total training steps, or running times of `env.step()`.
+| `time`: Time spent from the start of training to this moment.
+| `avgR`: Average value of cumulative rewards, which is the sum of rewards in an episode.
+| `stdR`: Standard dev of cumulative rewards, which is the sum of rewards in an episode.
+| `avgS`: Average of steps in an episode.
+| `objC`: Objective of Critic network. Or call it loss function of critic network.
+| `objA`: Objective of Actor network. It is the average Q value of the critic network.
+|     step      time  |     avgR    stdR    avgS  |     objC      objA
