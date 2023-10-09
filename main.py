@@ -14,6 +14,8 @@ from flask_socketio import SocketIO, join_room
 from datetime import datetime, timedelta
 from collections import deque, OrderedDict
 from configurations import CONFIGURATIONS  # Importing the configuration file
+import eventlet
+eventlet.monkey_patch()
 
 logging.basicConfig(
         level=logging.DEBUG,
@@ -42,25 +44,23 @@ def generate_combinations():
 
 
 class TrainerProcess:
-    def __init__(self, script, config):
+    def __init__(self, uid, script, config):
         self.script = script
         self.config = config
-        self.uid = hashlib.md5(str(uuid.uuid4()).encode('utf-8')).hexdigest()[:5]
+        self.uid = uid
         self.process = None
-    
+
     def start(self):
         args = [sys.executable, self.script, '--uid', self.uid]
         for key, value in self.config.items():
             if key == "ticker_list":
-                value = ','.join(value)  # Convert the list to a string with ',' as the separator
+                value = ','.join(value)
             elif key == "net_dimensions":
-                value = str(value)  # pass the list as a string
+                value = str(value)
             args.extend([f'--{key}', str(value)])
         self.process = subprocess.Popen(args)
         logger.info("Started %s with UID: %s and Config: %s", self.script, self.uid, self.config)
 
-
-        
     def terminate(self):
         if self.process:
             self.process.terminate()
@@ -74,40 +74,38 @@ class ProcessManager:
         self.last_active = {}
         self.current_config_index = 0
         
-    
     def start_process(self, script):
-        if self.current_config_index < len(self.configurations):
-            config = self.configurations[self.current_config_index]
-            proc = TrainerProcess(script, config)
-            proc.start()
-            self.processes[script] = proc
-            self.last_active[script] = datetime.now()
-            self.current_config_index += 1
-            return proc.uid
-    
-    def terminate_process(self, script, force_kill=False):
-        if script in self.processes:
-            if force_kill:  # If the process was inactive
-                self.processes[script].terminate()  # Directly terminate
-                self.processes[script].process.wait()
-                del self.processes[script]
-            else:  # If it's due to a low average
-                # Inform the script to terminate itself
-                sio.emit('terminate_yourself', {'script': script}, room=script)
-                # Optionally, you can add a wait period here and then forcefully terminate if the process doesn't shut down in the given period.
-                sio.sleep(5)
-                if script in self.processes:
-                    logger.info(f"Had to force kill {script}")
-                    self.processes[script].terminate()
-                    self.processes[script].process.wait()
-                    del self.processes[script]
-
-    
-    def restart_process(self, script, force_kill=False):
-        self.terminate_process(script, force_kill)
-        uid = self.start_process(script)
-        self.last_active[script] = datetime.now()
+        uid = hashlib.md5(str(uuid.uuid4()).encode('utf-8')).hexdigest()[:6]
+        config = self.configurations[self.current_config_index]
+        proc = TrainerProcess(uid, script, config)
+        proc.start()
+        self.processes[uid] = proc
+        self.last_active[uid] = datetime.now()
+        self.current_config_index += 1
+        collected_values[uid] = deque(maxlen=3)  # Initialize here
         return uid
+    
+    def terminate_process(self, uid, force_kill=False):
+        if uid in self.processes:
+            proc = self.processes[uid]
+            if force_kill:
+                proc.terminate()
+                proc.process.wait()
+                del self.processes[uid]
+            else:
+                sio.emit('terminate_yourself', {'script': uid}, room=uid)
+                sio.sleep(5)
+                if uid in self.processes:
+                    logger.info(f"Had to force kill {uid}")
+                    proc.terminate()
+                    proc.process.wait()
+                    del self.processes[uid]
+    
+    def restart_process(self, uid, force_kill=False):
+        script = self.processes[uid].script  # getting the script path from the terminated process
+        self.terminate_process(uid, force_kill)
+        return self.start_process(script)
+    
     
     def update_leaderboard(self, script, uid, return_value):
         self.leaderboard[(script, uid)] = return_value
@@ -129,22 +127,7 @@ def monitor_processes(app):
 
 app = Flask(__name__)
 sio = SocketIO(app, cors_allowed_origins="*")
-collected_values = {'trainer1/trainer1.py': deque(maxlen=3),
-                    'trainer2/trainer2.py': deque(maxlen=3),
-                    'trainer3/trainer3.py': deque(maxlen=3),
-                    'trainer4/trainer4.py': deque(maxlen=3),
-                    'trainer5/trainer5.py': deque(maxlen=3),
-                    'trainer6/trainer6.py': deque(maxlen=3),
-                    'trainer7/trainer7.py': deque(maxlen=3),
-                    'trainer8/trainer8.py': deque(maxlen=3),
-                    'trainer9/trainer9.py': deque(maxlen=3),
-                    'trainer10/trainer10.py': deque(maxlen=3),
-                    'trainer11/trainer11.py': deque(maxlen=3),
-                    'trainer12/trainer12.py': deque(maxlen=3),
-                    'trainer13/trainer13.py': deque(maxlen=3),
-                    'trainer14/trainer14.py': deque(maxlen=3),
-                    'trainer15/trainer15.py': deque(maxlen=3)}
-
+collected_values = {}
 
 def write_processes_to_csv(file_path, script, uid, return_value, config):
     with open(file_path, mode='a', newline='') as file:
@@ -157,16 +140,14 @@ def write_processes_to_csv(file_path, script, uid, return_value, config):
 def index():
     return 'Server is running!'
 
-
 @sio.on('connect')
 def on_connect():
     logger.info("Client Connected - Server side")
-    #sio.start_background_task(monitor_processes, current_app._get_current_object())
 
 @sio.on('join')
 def on_join(data):
-    room = data['room']
-    join_room(room)
+    uid = data['uid']
+    join_room(uid)
     return {"status": "joined"}
 
 @sio.on('disconnect')
@@ -175,43 +156,40 @@ def on_disconnect():
 
 @sio.on('heartbeat')
 def handle_heartbeat(data):
-    script = data.get('script')
-    if script:  # check if script is not None or empty
-        manager.last_active[script] = datetime.now()
+    uid = data.get('uid')
+    if uid:
+        manager.last_active[uid] = datetime.now()
     else:
         logger.warning(f"Invalid heartbeat data received: {data}")
 
-
 @sio.on('message')
 def handle_message(data):
-    script = data.get('script')
-    manager.last_active[script] = datetime.now()  # Update the last active time for this script
     uid = data.get('uid')
+    manager.last_active[uid] = datetime.now()
     message_type = data.get('type')
     value = float(data.get('value'))
 
     if message_type == 'training':
-        if script not in collected_values:
-            logger.error("Invalid script name received: %s", script)
-            return  # terminate the function early if the script name is invalid
-        collected_values[script].append(value)
-        logger.info(f'{script}: {collected_values[script]}')
-        if len(collected_values[script]) == 3:
-            average = sum(collected_values[script]) / 3
+        if uid not in collected_values:
+            logger.error("Invalid UID received: %s", uid)
+            return
+        collected_values[uid].append(value)
+        logger.info(f'{uid}: {collected_values[uid]}')
+        if len(collected_values[uid]) == 3:
+            average = sum(collected_values[uid]) / 3
             if average < 150:
-                logger.info(f"Average for {script} too low, killing training")
-                collected_values[script].clear()
-                uid = manager.restart_process(script)
+                logger.info(f"Average for {uid} too low, killing training")
+                collected_values[uid].clear()
+                new_uid = manager.restart_process(uid)
 
     elif message_type == 'returns':
-        # Retrieving the configuration for the current script and UID
-        current_config = manager.processes[script].config if script in manager.processes else {}
-        write_processes_to_csv('processes.csv', script, uid, value, current_config)
-        if script in manager.processes and manager.processes[script].process.poll() is None:
-            manager.terminate_process(script)
-        collected_values[script].clear()
-        uid = manager.start_process(script)  # Starting new process with the next configuration from the queue
-        manager.update_leaderboard(script, uid, value)  # Update leaderboard
+        current_config = manager.processes[uid].config if uid in manager.processes else {}
+        write_processes_to_csv('processes.csv', SCRIPT_PATH, uid, value, current_config)
+        if uid in manager.processes and manager.processes[uid].process.poll() is None:
+            manager.terminate_process(uid)
+        collected_values[uid].clear()
+        new_uid = manager.start_process(SCRIPT_PATH)
+        manager.update_leaderboard(SCRIPT_PATH, new_uid, value)
 
 def exit_handler(signum, frame):
     logger.info("Terminating all processes...")
@@ -221,37 +199,27 @@ def exit_handler(signum, frame):
 
 signal.signal(signal.SIGINT, exit_handler)
 
-def start_scripts(scripts, manager):
-    for script in scripts:
-        uid = manager.start_process(script)
-        # Continuously poll until a value is received for the current script
-        while not collected_values[script]:
-            time.sleep(5)  # Check every 5 seconds
-
+def start_scripts(script, instances, manager):
+    for _ in range(instances):
+        manager.start_process(script)
+        uid = list(manager.processes.keys())[-1]
+        while not collected_values[uid]:
+            time.sleep(5)
 
 if __name__ == "__main__":
-    scripts = [ 'trainer1/trainer1.py', 
-                'trainer2/trainer2.py',
-                'trainer3/trainer3.py',
-                'trainer4/trainer4.py',
-                'trainer5/trainer5.py',
-                'trainer6/trainer6.py',
-                'trainer7/trainer7.py']
+    SCRIPT_PATH = 'trainer.py'
+    NUM_INSTANCES = 3
     
     configurations = generate_combinations()
     manager = ProcessManager(configurations=configurations)
     
-    # Creating CSV file if not exist
-    
     if not os.path.exists('processes.csv'):
         with open('processes.csv', 'w') as file:
             writer = csv.writer(file)
-            # Extracting the first configuration to get its keys
             first_config = configurations[0] if configurations else {}
             headers = ['Script', 'UID', 'Return Value'] + list(first_config.keys())
             writer.writerow(headers)
 
-    # Start the scripts in a separate thread
-    thread = threading.Thread(target=start_scripts, args=(scripts, manager))
+    thread = threading.Thread(target=start_scripts, args=(SCRIPT_PATH, NUM_INSTANCES, manager))
     thread.start()
-    sio.run(app, port=5678)
+    eventlet.wsgi.server(eventlet.listen(('0.0.0.0', 5678)), app)
