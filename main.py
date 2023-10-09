@@ -10,7 +10,7 @@ import time
 import signal  # for handling the Ctrl+C interruption
 import subprocess  # for starting the TrainerProcess
 from flask import Flask, current_app  # importing current_app
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, join_room
 from datetime import datetime, timedelta
 from collections import deque, OrderedDict
 from configurations import CONFIGURATIONS  # Importing the configuration file
@@ -85,15 +85,26 @@ class ProcessManager:
             self.current_config_index += 1
             return proc.uid
     
-    def terminate_process(self, script):
+    def terminate_process(self, script, force_kill=False):
         if script in self.processes:
-            self.processes[script].terminate()
-            self.processes[script].process.wait()  # Wait for process to complete termination
-            del self.processes[script]
+            if force_kill:  # If the process was inactive
+                self.processes[script].terminate()  # Directly terminate
+                self.processes[script].process.wait()
+                del self.processes[script]
+            else:  # If it's due to a low average
+                # Inform the script to terminate itself
+                sio.emit('terminate_yourself', {'script': script}, room=script)
+                # Optionally, you can add a wait period here and then forcefully terminate if the process doesn't shut down in the given period.
+                sio.sleep(5)
+                if script in self.processes:
+                    logger.info(f"Had to force kill {script}")
+                    self.processes[script].terminate()
+                    self.processes[script].process.wait()
+                    del self.processes[script]
 
     
-    def restart_process(self, script):
-        self.terminate_process(script)
+    def restart_process(self, script, force_kill=False):
+        self.terminate_process(script, force_kill)
         uid = self.start_process(script)
         self.last_active[script] = datetime.now()
         return uid
@@ -113,14 +124,26 @@ def monitor_processes(app):
                 last_time = manager.last_active.get(script, now)
                 if now - last_time > timedelta(seconds=60):
                     logger.info(f"{script} has been inactive. Restarting...")
-                    manager.restart_process(script)
+                    #manager.restart_process(script, force_kill=True)
             sio.sleep(1)  # Check every second
 
 app = Flask(__name__)
 sio = SocketIO(app, cors_allowed_origins="*")
-collected_values = {'trainer1/trainer1.py': deque(maxlen=5),
-                    'trainer2/trainer2.py': deque(maxlen=5),
-                    'trainer3/trainer3.py': deque(maxlen=5)}
+collected_values = {'trainer1/trainer1.py': deque(maxlen=3),
+                    'trainer2/trainer2.py': deque(maxlen=3),
+                    'trainer3/trainer3.py': deque(maxlen=3),
+                    'trainer4/trainer4.py': deque(maxlen=3),
+                    'trainer5/trainer5.py': deque(maxlen=3),
+                    'trainer6/trainer6.py': deque(maxlen=3),
+                    'trainer7/trainer7.py': deque(maxlen=3),
+                    'trainer8/trainer8.py': deque(maxlen=3),
+                    'trainer9/trainer9.py': deque(maxlen=3),
+                    'trainer10/trainer10.py': deque(maxlen=3),
+                    'trainer11/trainer11.py': deque(maxlen=3),
+                    'trainer12/trainer12.py': deque(maxlen=3),
+                    'trainer13/trainer13.py': deque(maxlen=3),
+                    'trainer14/trainer14.py': deque(maxlen=3),
+                    'trainer15/trainer15.py': deque(maxlen=3)}
 
 
 def write_processes_to_csv(file_path, script, uid, return_value, config):
@@ -137,14 +160,18 @@ def index():
 
 @sio.on('connect')
 def on_connect():
-    logger.info("Client Connected")
-    sio.start_background_task(monitor_processes, current_app._get_current_object())
+    logger.info("Client Connected - Server side")
+    #sio.start_background_task(monitor_processes, current_app._get_current_object())
 
-
+@sio.on('join')
+def on_join(data):
+    room = data['room']
+    join_room(room)
+    return {"status": "joined"}
 
 @sio.on('disconnect')
 def on_disconnect():
-    logger.info(f"Client {script} Disconnected")
+    logger.info(f"Client Disconnected - Server side")
 
 @sio.on('heartbeat')
 def handle_heartbeat(data):
@@ -168,14 +195,13 @@ def handle_message(data):
             logger.error("Invalid script name received: %s", script)
             return  # terminate the function early if the script name is invalid
         collected_values[script].append(value)
-        logger.info(collected_values[script])
-        if len(collected_values[script]) == 5:
-            average = sum(collected_values[script]) / 5
-            if average < 250:
+        logger.info(f'{script}: {collected_values[script]}')
+        if len(collected_values[script]) == 3:
+            average = sum(collected_values[script]) / 3
+            if average < 150:
                 logger.info(f"Average for {script} too low, killing training")
-                manager.terminate_process(script)
                 collected_values[script].clear()
-                uid = manager.start_process(script)
+                uid = manager.restart_process(script)
 
     elif message_type == 'returns':
         # Retrieving the configuration for the current script and UID
@@ -198,12 +224,20 @@ signal.signal(signal.SIGINT, exit_handler)
 def start_scripts(scripts, manager):
     for script in scripts:
         uid = manager.start_process(script)
-        time.sleep(60)  # Delay of 60 seconds between starting each script
+        # Continuously poll until a value is received for the current script
+        while not collected_values[script]:
+            time.sleep(5)  # Check every 5 seconds
+
 
 if __name__ == "__main__":
-    scripts = ['trainer1/trainer1.py', 
+    scripts = [ 'trainer1/trainer1.py', 
                 'trainer2/trainer2.py',
-                'trainer3/trainer3.py']
+                'trainer3/trainer3.py',
+                'trainer4/trainer4.py',
+                'trainer5/trainer5.py',
+                'trainer6/trainer6.py',
+                'trainer7/trainer7.py']
+    
     configurations = generate_combinations()
     manager = ProcessManager(configurations=configurations)
     

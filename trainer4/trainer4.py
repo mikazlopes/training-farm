@@ -16,7 +16,9 @@ from finrl.meta.data_processor import DataProcessor
 import logging
 import numpy as np
 import pandas as pd
+import pickle
 import os
+import sys
 import time
 import gym
 import numpy.random as rd
@@ -61,7 +63,7 @@ learning_rate = args.learning_rate
 batch_size = args.batch_size
 netDimensions = ast.literal_eval(args.net_dimensions)  # Convert the string representation of list back to a list
 script_uid = args.uid
-  
+ 
 def subtract_years_from_date(date_str, period_years):
     date_obj = datetime.strptime(date_str, "%Y-%m-%d")
     new_date_obj = date_obj.replace(year=date_obj.year - period_years)
@@ -75,35 +77,50 @@ TEST_END_DATE = '2023-09-28'
 action_dim = len(ticker_list)
 state_dim = 1 + 2 + 3 * action_dim + len(INDICATORS) * action_dim
 
+
 sio = socketio.Client()
 script_name = id_name + '/' + id_name + '.py'  
 
 @sio.event
 def connect():
-    print('Connection established')
-    sio.start_background_task(send_heartbeat)  # Start the heartbeat task on connect
+    sio.emit('join', {'room': script_name}, callback=joined_room)
+    logging.info(f'Connection established by {id_name}')
+    # Rest of your code
+
+def joined_room(data):
+    logging.info("Successfully joined room!")
+    sio.start_background_task(send_heartbeat)
+
+@sio.on('terminate_yourself')
+def on_terminate(data):
+    if data and data.get('script') == script_name:
+        logging.info(f"Received termination signal for {id_name}. Exiting...")
+        sys.exit(0)
 
 def send_heartbeat():
     try:
         while True:
             try:
-                sio.emit('heartbeat', {'script': script_name})
-                time.sleep(3)  # Send heartbeat every 3 seconds
+                if sio.connected:
+                    sio.emit('heartbeat', {'script': script_name})
+                    time.sleep(5)  # Send heartbeat every 3 seconds
             except socketio.exceptions.BadNamespaceError as e:
                 logging.warning(f"Namespace error occurred: {e}")
     except Exception as e:
-        logging.error(f"An error occurred in {script_name} send_heartbeat: {e}", exc_info=True)
+        logging.error(f"An error occurred in {id_name} send_heartbeat: {e}", exc_info=True)
 
 @sio.event
 def disconnect():
-    print(f'{script_name} - Disconnected from server')
-    time.sleep(5)  # wait for 10 seconds
-    try:
-        sio.connect('http://localhost:5678')
-    except Exception as e:
-        logging.error(f"{script_name} Failed to reconnect: {e}", exc_info=True)
+    print(f'{id_name} - Disconnected from server')
+    time.sleep(10)  # wait for 10 seconds
+    if not sio.connected:
+        try:
+            sio.connect('http://localhost:5678')
+        except Exception as e:
+            logging.error(f"{id_name} Failed to reconnect: {e}", exc_info=True)
 
 sio.connect('http://localhost:5678')
+
 
 class ActorPPO(nn.Module):
     def __init__(self, dims: [int], state_dim: int, action_dim: int):
@@ -479,6 +496,7 @@ class Evaluator:
               f"| {avg_r:8.2f}  {std_r:6.2f}  {avg_s:6.0f}  "
               f"| {logging_tuple[0]:8.2f}  {logging_tuple[1]:8.2f}")
         
+        
         sio.send({'script': script_name, 'uid': script_uid, 'type': 'training', 'value': float(avg_r)})
 
 
@@ -626,41 +644,76 @@ class DRLAgent:
         sio.send({'script': script_name, 'uid': script_uid, 'type': 'returns', 'value': float(episode_return)})
         return episode_total_assets
 
-def train(
-    start_date,
-    end_date,
-    ticker_list,
-    data_source,
-    time_interval,
-    technical_indicator_list,
-    drl_lib,
-    env,
-    model_name,
-    if_vix=True,
-    **kwargs,
-):
-    # download data
-    dp = DataProcessor(data_source, **kwargs)
-    data = dp.download_data(ticker_list, start_date, end_date, time_interval)
-    data = dp.clean_data(data)
-    data = dp.add_technical_indicator(data, technical_indicator_list)
-    if if_vix:
-        data = dp.add_vix(data)
-    else:
-        data = dp.add_turbulence(data)
-    price_array, tech_array, turbulence_array = dp.df_to_array(data, if_vix)
-    env_config = {
-        "price_array": price_array,
-        "tech_array": tech_array,
-        "turbulence_array": turbulence_array,
-        "if_train": True,
-    }
-    env_instance = env(config=env_config)
+class TrainingTesting:
 
-    # read parameters
-    cwd = kwargs.get("cwd", "./" + str(model_name))
+    CACHE_DIR = './cache'  # Specify your cache directory
 
-    if drl_lib == "elegantrl":
+    def _generate_cache_key(self, tickers, start_date, end_date):
+        return f"{'_'.join(tickers)}_{start_date}_{end_date}.pkl"
+
+    def _save_to_cache(self, data, cache_key):
+        os.makedirs(self.CACHE_DIR, exist_ok=True)
+        cache_file = os.path.join(self.CACHE_DIR, cache_key)
+        with open(cache_file, 'wb') as file:
+            pickle.dump(data, file)
+
+    def _load_from_cache(self, cache_key):
+        cache_file = os.path.join(self.CACHE_DIR, cache_key)
+        if os.path.exists(cache_file):
+            with open(cache_file, 'rb') as file:
+                return pickle.load(file)
+        return None
+    
+    def train(
+        self,
+        start_date,
+        end_date,
+        ticker_list,
+        data_source,
+        time_interval,
+        technical_indicator_list,
+        drl_lib,
+        env,
+        model_name,
+        if_vix=True,
+        **kwargs,
+    ):
+        
+        # First, try to load the data from cache
+        cache_key = self._generate_cache_key(ticker_list, start_date, end_date)
+        data = self._load_from_cache(cache_key)
+        dp = DataProcessor(data_source,tech_indicator=technical_indicator_list, **kwargs)
+        
+        # If data is not in cache, download and treat it
+        if data is None:
+        # fetch data
+            # download data
+            print("Not using cache")
+            data = dp.download_data(ticker_list, start_date, end_date, time_interval)
+            data = dp.clean_data(data)
+            data = dp.add_technical_indicator(data, technical_indicator_list)
+            if if_vix:
+                data = dp.add_vix(data)
+            else:
+                data = dp.add_turbulence(data)
+
+            # Save the treated data to cache for future use
+            self._save_to_cache(data, cache_key)
+        
+        price_array, tech_array, turbulence_array = dp.df_to_array(data, if_vix)
+        env_config = {
+            "price_array": price_array,
+            "tech_array": tech_array,
+            "turbulence_array": turbulence_array,
+            "if_train": True,
+        }
+
+        env_instance = env(config=env_config)
+
+        # read parameters
+        cwd = kwargs.get("cwd", "./" + str(model_name))
+
+        
         DRLAgent_erl = DRLAgent
         break_step = kwargs.get("break_step", 1e6)
         erl_params = kwargs.get("erl_params")
@@ -675,7 +728,8 @@ def train(
             model=model, cwd=cwd, total_timesteps=break_step
         )
 
-def test(
+    def test(
+    self,
     start_date,
     end_date,
     ticker_list,
@@ -687,34 +741,48 @@ def test(
     model_name,
     if_vix=True,
     **kwargs,
-):
-    
-    # fetch data
-    dp = DataProcessor(data_source, **kwargs)
-    data = dp.download_data(ticker_list, start_date, end_date, time_interval)
-    data = dp.clean_data(data)
-    data = dp.add_technical_indicator(data, technical_indicator_list)
+    ):
 
-    if if_vix:
-        data = dp.add_vix(data)
-    else:
-        data = dp.add_turbulence(data)
-    price_array, tech_array, turbulence_array = dp.df_to_array(data, if_vix)
+         # First, try to load the data from cache
+        cache_key = self._generate_cache_key(ticker_list, start_date, end_date)
+        data = self._load_from_cache(cache_key)
+        dp = DataProcessor(data_source,tech_indicator=technical_indicator_list, **kwargs)
+        
+        # If data is not in cache, download and treat it
+        if data is None:
+        # fetch data
+            # download data
+            print("Not using cache")
+            data = dp.download_data(ticker_list, start_date, end_date, time_interval)
+            data = dp.clean_data(data)
+            data = dp.add_technical_indicator(data, technical_indicator_list)
+            if if_vix:
+                data = dp.add_vix(data)
+            else:
+                data = dp.add_turbulence(data)
 
-    env_config = {
-        "price_array": price_array,
-        "tech_array": tech_array,
-        "turbulence_array": turbulence_array,
-        "if_train": False,
-    }
-    env_instance = env(config=env_config)
+            # Save the treated data to cache for future use
+            self._save_to_cache(data, cache_key)
+        
+        price_array, tech_array, turbulence_array = dp.df_to_array(data, if_vix)
 
-    # load elegantrl needs state dim, action dim and net dim
-    net_dimension = kwargs.get("net_dimension", 2**7)
-    cwd = kwargs.get("cwd", "./" + str(model_name))
-    logging.info(f"price_array: {len(price_array)}")
+        # Save the treated data to cache for future use
+        self._save_to_cache(data, cache_key)
 
-    if drl_lib == "elegantrl":
+        env_config = {
+            "price_array": price_array,
+            "tech_array": tech_array,
+            "turbulence_array": turbulence_array,
+            "if_train": False,
+        }
+        env_instance = env(config=env_config)
+
+        # load elegantrl needs state dim, action dim and net dim
+        net_dimension = kwargs.get("net_dimension", 2**7)
+        cwd = kwargs.get("cwd", "./" + str(model_name))
+        print("price_array: ", len(price_array))
+
+        
         DRLAgent_erl = DRLAgent
         episode_total_assets = DRLAgent_erl.DRL_prediction(
             model_name=model_name,
@@ -723,7 +791,6 @@ def test(
             environment=env_instance,
         )
         return episode_total_assets
-
 
 env = StockTradingEnv
 
@@ -734,42 +801,48 @@ env = StockTradingEnv
 #if you want to use larger datasets (change to longer period), and it raises error, 
 #please try to increase "target_step". It should be larger than the episode steps. 
 
-train(start_date = TRAIN_START_DATE, 
-      end_date = TRAIN_END_DATE,
-      ticker_list = ticker_list, 
-      data_source = 'alpaca',
-      time_interval= '1Min', 
-      technical_indicator_list= INDICATORS,
-      drl_lib='elegantrl', 
-      env=env,
-      model_name='ppo',
-      if_vix=True, 
-      API_KEY = API_KEY, 
-      API_SECRET = API_SECRET, 
-      API_BASE_URL = API_BASE_URL,
-      erl_params=ERL_PARAMS,
-      cwd='./trained_models/' + id_name + '-' + str(script_uid) + '-steps-' + str(totalTimesteps) + str(ERL_PARAMS["net_dimension"]) + '-' + TRAIN_START_DATE,  #current_working_dir,
-      break_step=1e5)
+
+trainTest = TrainingTesting()
+
+trainTest.train(start_date = TRAIN_START_DATE, 
+    end_date = TRAIN_END_DATE,
+    ticker_list = ticker_list, 
+    data_source = 'alpaca',
+    time_interval= '1Min', 
+    technical_indicator_list= INDICATORS,
+    drl_lib='elegantrl', 
+    env=env,
+    model_name='ppo',
+    if_vix=True, 
+    API_KEY = API_KEY, 
+    API_SECRET = API_SECRET, 
+    API_BASE_URL = API_BASE_URL,
+    erl_params=ERL_PARAMS,
+    cwd='./trained_models/' + id_name + '-' + str(script_uid) + '-steps-' + str(totalTimesteps) + str(ERL_PARAMS["net_dimension"]) + '-' + TRAIN_START_DATE,  #current_working_dir,
+    break_step=1e6)
+   
 
 
-account_value_erl=test(start_date = TEST_START_DATE, 
-                      end_date = TEST_END_DATE,
-                      ticker_list = ticker_list, 
-                      data_source = 'alpaca',
-                      time_interval= '1Min', 
-                      technical_indicator_list= INDICATORS,
-                      drl_lib='elegantrl', 
-                      env=env, 
-                      model_name='ppo',
-                      if_vix=True, 
-                      API_KEY = API_KEY, 
-                      API_SECRET = API_SECRET, 
-                      API_BASE_URL = API_BASE_URL,
-                      cwd='./trained_models/' + id_name + '-' + str(script_uid) + '-steps-' + str(totalTimesteps) + str(ERL_PARAMS["net_dimension"]) + '-' + TRAIN_START_DATE,  #current_working_dir,
-                      net_dimension = ERL_PARAMS['net_dimension'])
+account_value_erl=trainTest.test(start_date = TEST_START_DATE, 
+                    end_date = TEST_END_DATE,
+                    ticker_list = ticker_list, 
+                    data_source = 'alpaca',
+                    time_interval= '1Min', 
+                    technical_indicator_list= INDICATORS,
+                    drl_lib='elegantrl', 
+                    env=env, 
+                    model_name='ppo',
+                    if_vix=True, 
+                    API_KEY = API_KEY, 
+                    API_SECRET = API_SECRET, 
+                    API_BASE_URL = API_BASE_URL,
+                    cwd='./trained_models/' + id_name + '-' + str(script_uid) + '-steps-' + str(totalTimesteps) + str(ERL_PARAMS["net_dimension"]) + '-' + TRAIN_START_DATE,  #current_working_dir,
+                    net_dimension = ERL_PARAMS['net_dimension'])
+   
 
-# train(start_date = '2023-08-01', 
-#       end_date = '2023-08-30',
+
+# train(start_date = TRAIN_START_DATE, 
+#       end_date = TRAIN_END_DATE,
 #       ticker_list = ticker_list, 
 #       data_source = 'alpaca',
 #       time_interval= '1Min', 
@@ -783,5 +856,5 @@ account_value_erl=test(start_date = TEST_START_DATE,
 #       API_BASE_URL = API_BASE_URL,
 #       erl_params=ERL_PARAMS,
 #       cwd='./candidate/' + id_name + '-' + str(script_uid) + '-steps-' + str(totalTimesteps) + str(ERL_PARAMS["net_dimension"]) + '-' + TRAIN_START_DATE,  #current_working_dir,
-#       break_step=2e5)
+#       break_step=2e6)
 

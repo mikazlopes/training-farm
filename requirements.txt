@@ -1,0 +1,7 @@
+flask
+Flask-SocketIO
+numpy
+pandas
+gym
+torch
+python-socketio

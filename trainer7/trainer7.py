@@ -33,7 +33,7 @@ import threading
 import ast
 from datetime import datetime, timedelta
 
-id_name = 'trainer3'
+id_name = 'trainer7'
 
 logging.basicConfig(
         level=logging.INFO,
@@ -120,7 +120,6 @@ def disconnect():
             logging.error(f"{id_name} Failed to reconnect: {e}", exc_info=True)
 
 sio.connect('http://localhost:5678')
-
 
 class ActorPPO(nn.Module):
     def __init__(self, dims: [int], state_dim: int, action_dim: int):
