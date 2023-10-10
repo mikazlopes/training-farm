@@ -33,15 +33,7 @@ import threading
 import ast
 from datetime import datetime, timedelta
 
-id_name = 'trainer3'
 
-logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s [%(levelname)s] %(message)s",
-        handlers=[
-                logging.FileHandler(id_name + "/output.log"),
-                logging.StreamHandler()]
-)
 
 parser = argparse.ArgumentParser(description='Trainer Script')
     
@@ -63,6 +55,16 @@ learning_rate = args.learning_rate
 batch_size = args.batch_size
 netDimensions = ast.literal_eval(args.net_dimensions)  # Convert the string representation of list back to a list
 script_uid = args.uid
+
+id_name = script_uid
+
+logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        handlers=[
+                logging.FileHandler('logs/' + id_name + ".log"),
+                logging.StreamHandler()]
+)
  
 def subtract_years_from_date(date_str, period_years):
     date_obj = datetime.strptime(date_str, "%Y-%m-%d")
@@ -83,7 +85,7 @@ script_name = id_name + '/' + id_name + '.py'
 
 @sio.event
 def connect():
-    sio.emit('join', {'room': script_name}, callback=joined_room)
+    sio.emit('join', {'uid': id_name}, callback=joined_room)
     logging.info(f'Connection established by {id_name}')
     # Rest of your code
 
@@ -93,7 +95,7 @@ def joined_room(data):
 
 @sio.on('terminate_yourself')
 def on_terminate(data):
-    if data and data.get('script') == script_name:
+    if data and data.get('script') == id_name:
         logging.info(f"Received termination signal for {id_name}. Exiting...")
         sys.exit(0)
 
@@ -102,7 +104,7 @@ def send_heartbeat():
         while True:
             try:
                 if sio.connected:
-                    sio.emit('heartbeat', {'script': script_name})
+                    sio.emit('heartbeat', {'uid': id_name})
                     time.sleep(5)  # Send heartbeat every 3 seconds
             except socketio.exceptions.BadNamespaceError as e:
                 logging.warning(f"Namespace error occurred: {e}")
@@ -120,7 +122,6 @@ def disconnect():
             logging.error(f"{id_name} Failed to reconnect: {e}", exc_info=True)
 
 sio.connect('http://localhost:5678')
-
 
 class ActorPPO(nn.Module):
     def __init__(self, dims: [int], state_dim: int, action_dim: int):
@@ -497,7 +498,7 @@ class Evaluator:
               f"| {logging_tuple[0]:8.2f}  {logging_tuple[1]:8.2f}")
         
         
-        sio.send({'script': script_name, 'uid': script_uid, 'type': 'training', 'value': float(avg_r)})
+        sio.send({'uid': script_uid, 'type': 'training', 'value': float(avg_r)})
 
 
 def get_rewards_and_steps(env, actor, if_render: bool = False) -> (float, int):  # cumulative_rewards and episode_steps
@@ -641,7 +642,7 @@ class DRLAgent:
         logging.info("Test Finished!")
         # return episode total_assets on testing data
         logging.info(f"episode_return: {episode_return}")
-        sio.send({'script': script_name, 'uid': script_uid, 'type': 'returns', 'value': float(episode_return)})
+        sio.send({'uid': script_uid, 'type': 'returns', 'cwd': cwd, 'value': float(episode_return)})
         return episode_total_assets
 
 class TrainingTesting:
@@ -699,6 +700,9 @@ class TrainingTesting:
 
             # Save the treated data to cache for future use
             self._save_to_cache(data, cache_key)
+
+        else:
+            logging.info(f'{id_name} using cache')
         
         price_array, tech_array, turbulence_array = dp.df_to_array(data, if_vix)
         env_config = {
@@ -818,8 +822,8 @@ trainTest.train(start_date = TRAIN_START_DATE,
     API_SECRET = API_SECRET, 
     API_BASE_URL = API_BASE_URL,
     erl_params=ERL_PARAMS,
-    cwd='./trained_models/' + id_name + '-' + str(script_uid) + '-steps-' + str(totalTimesteps) + str(ERL_PARAMS["net_dimension"]) + '-' + TRAIN_START_DATE,  #current_working_dir,
-    break_step=1e6)
+    cwd='./trained_models/' + str(script_uid) + '-steps-' + str(totalTimesteps) + str(ERL_PARAMS["net_dimension"]) + '-' + TRAIN_START_DATE,  #current_working_dir,
+    break_step=1e5)
    
 
 
@@ -836,7 +840,7 @@ account_value_erl=trainTest.test(start_date = TEST_START_DATE,
                     API_KEY = API_KEY, 
                     API_SECRET = API_SECRET, 
                     API_BASE_URL = API_BASE_URL,
-                    cwd='./trained_models/' + id_name + '-' + str(script_uid) + '-steps-' + str(totalTimesteps) + str(ERL_PARAMS["net_dimension"]) + '-' + TRAIN_START_DATE,  #current_working_dir,
+                    cwd='./trained_models/' + str(script_uid) + '-steps-' + str(totalTimesteps) + str(ERL_PARAMS["net_dimension"]) + '-' + TRAIN_START_DATE,  #current_working_dir,
                     net_dimension = ERL_PARAMS['net_dimension'])
    
 
