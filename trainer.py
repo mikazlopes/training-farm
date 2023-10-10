@@ -642,7 +642,7 @@ class DRLAgent:
         logging.info("Test Finished!")
         # return episode total_assets on testing data
         logging.info(f"episode_return: {episode_return}")
-        sio.send({'uid': script_uid, 'type': 'returns', 'value': float(episode_return)})
+        sio.send({'uid': script_uid, 'type': 'returns', 'cwd': cwd, 'value': float(episode_return)})
         return episode_total_assets
 
 class TrainingTesting:
@@ -822,8 +822,8 @@ trainTest.train(start_date = TRAIN_START_DATE,
     API_SECRET = API_SECRET, 
     API_BASE_URL = API_BASE_URL,
     erl_params=ERL_PARAMS,
-    cwd='./trained_models/' + id_name + '-' + str(script_uid) + '-steps-' + str(totalTimesteps) + str(ERL_PARAMS["net_dimension"]) + '-' + TRAIN_START_DATE,  #current_working_dir,
-    break_step=1e6)
+    cwd='./trained_models/' + str(script_uid) + '-steps-' + str(totalTimesteps) + str(ERL_PARAMS["net_dimension"]) + '-' + TRAIN_START_DATE,  #current_working_dir,
+    break_step=1e5)
    
 
 
@@ -840,7 +840,7 @@ account_value_erl=trainTest.test(start_date = TEST_START_DATE,
                     API_KEY = API_KEY, 
                     API_SECRET = API_SECRET, 
                     API_BASE_URL = API_BASE_URL,
-                    cwd='./trained_models/' + id_name + '-' + str(script_uid) + '-steps-' + str(totalTimesteps) + str(ERL_PARAMS["net_dimension"]) + '-' + TRAIN_START_DATE,  #current_working_dir,
+                    cwd='./trained_models/' + str(script_uid) + '-steps-' + str(totalTimesteps) + str(ERL_PARAMS["net_dimension"]) + '-' + TRAIN_START_DATE,  #current_working_dir,
                     net_dimension = ERL_PARAMS['net_dimension'])
    
 

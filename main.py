@@ -107,9 +107,9 @@ class ProcessManager:
         return self.start_process(script)
     
     
-    def update_leaderboard(self, script, uid, return_value):
-        self.leaderboard[(script, uid)] = return_value
-        self.leaderboard = OrderedDict(sorted(self.leaderboard.items(), key=lambda x: x[1], reverse=True))
+    def update_leaderboard(self, script, uid, return_value, cwd):
+        self.leaderboard[(script, uid)] = {'return_value': return_value, 'cwd': cwd}
+        self.leaderboard = OrderedDict(sorted(self.leaderboard.items(), key=lambda x: x[1]['return_value'], reverse=True))
         logger.info("Leaderboard Updated: %s", self.leaderboard)
         if not self.configurations and not any(p.process and p.process.poll() is None for p in self.processes.values()):
             logger.info("All configurations processed. Final leaderboard: %s", self.leaderboard)
@@ -129,12 +129,12 @@ app = Flask(__name__)
 sio = SocketIO(app, cors_allowed_origins="*")
 collected_values = {}
 
-def write_processes_to_csv(file_path, script, uid, return_value, config):
+def write_processes_to_csv(file_path, script, uid, return_value, cwd, config):
     with open(file_path, mode='a', newline='') as file:
         writer = csv.writer(file)
-        # Extracting values from the config in the order of its keys
         config_values = [config[key] for key in config]
-        writer.writerow([script, uid, return_value] + config_values)
+        writer.writerow([script, uid, return_value, cwd] + config_values)
+
 
 @app.route('/')
 def index():
@@ -167,6 +167,7 @@ def handle_message(data):
     uid = data.get('uid')
     manager.last_active[uid] = datetime.now()
     message_type = data.get('type')
+    cwd = data.get('cwd')
     value = float(data.get('value'))
 
     if message_type == 'training':
@@ -184,12 +185,12 @@ def handle_message(data):
 
     elif message_type == 'returns':
         current_config = manager.processes[uid].config if uid in manager.processes else {}
-        write_processes_to_csv('processes.csv', SCRIPT_PATH, uid, value, current_config)
+        write_processes_to_csv('processes.csv', SCRIPT_PATH, uid, value, cwd, current_config)
         if uid in manager.processes and manager.processes[uid].process.poll() is None:
             manager.terminate_process(uid)
         collected_values[uid].clear()
         new_uid = manager.start_process(SCRIPT_PATH)
-        manager.update_leaderboard(SCRIPT_PATH, new_uid, value)
+        manager.update_leaderboard(SCRIPT_PATH, new_uid, value, cwd)
 
 def exit_handler(signum, frame):
     logger.info("Terminating all processes...")
@@ -217,7 +218,7 @@ if __name__ == "__main__":
         with open('processes.csv', 'w') as file:
             writer = csv.writer(file)
             first_config = configurations[0] if configurations else {}
-            headers = ['Script', 'UID', 'Return Value'] + list(first_config.keys())
+            headers = ['Script', 'UID', 'Return Value', 'cwd'] + list(first_config.keys())
             writer.writerow(headers)
 
     thread = threading.Thread(target=start_scripts, args=(SCRIPT_PATH, NUM_INSTANCES, manager))
