@@ -44,6 +44,7 @@ parser.add_argument('--learning_rate', type=float, required=True, help='Learning
 parser.add_argument('--batch_size', type=int, required=True, help='Batch size')
 parser.add_argument('--net_dimensions', type=str, required=True, help='Comma-separated string of network dimensions')
 parser.add_argument('--uid', required=True, help='Unique Identifier for this run')
+parser.add_argument('--gpu_id', type=int, required=True, help='ID of GPU to be used')
 
 args = parser.parse_args()
 
@@ -55,6 +56,7 @@ learning_rate = args.learning_rate
 batch_size = args.batch_size
 netDimensions = ast.literal_eval(args.net_dimensions)  # Convert the string representation of list back to a list
 script_uid = args.uid
+gpuID = args.gpu_id
 
 id_name = script_uid
 
@@ -262,9 +264,8 @@ class AgentBase:
         self.soft_update_tau = args.soft_update_tau
 
         self.states = None  # assert self.states == (1, state_dim)
-        #self.device = torch.device(f"mps" if ((torch.backends.mps.is_available)) else "cpu")
-        self.device = torch.device(f"cuda:{gpu_id}" if (torch.cuda.is_available() and (gpu_id >= 0)) else "cpu")
-        #self.device = torch.device("cpu")
+    
+        self.device = torch.device(f"cuda:{gpuID}" if (torch.cuda.is_available() and (gpuID >= 0)) else "cpu")
 
         act_class = getattr(self, "act_class", None)
         cri_class = getattr(self, "cri_class", None)
