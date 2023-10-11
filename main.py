@@ -64,7 +64,7 @@ class TrainerProcess:
         self.process = None
 
     def start(self):
-        args = [sys.executable, self.script, '--uid', self.uid, '--gpu_id', int(self.gpu_id)]
+        args = [sys.executable, self.script, '--uid', self.uid, '--gpu_id', str(self.gpu_id)]
         for key, value in self.config.items():
             if key == "ticker_list":
                 value = ','.join(value)
@@ -72,7 +72,8 @@ class TrainerProcess:
                 value = str(value)
             args.extend([f'--{key}', str(value)])
         self.process = subprocess.Popen(args)
-        logger.info("Started %s with UID: %s and Config: %s", self.script, self.uid, self.gpu_id, self.config)
+        logger.info("Started %s with UID: %s, GPU ID: %d, and Config: %s", self.script, self.uid, self.gpu_id, self.config)
+
 
     def terminate(self):
         if self.process:
