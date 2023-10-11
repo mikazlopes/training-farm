@@ -4,7 +4,7 @@ processes.csv
 .DS_Store
 *.pth
 cache/
-logs/
+logs/*.log
 .history/
 # Byte-compiled / optimized / DLL files
 __pycache__/
