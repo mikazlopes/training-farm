@@ -6,3 +6,5 @@ gym
 torch
 python-socketio
 eventlet
+pytest
+pytest-mock
