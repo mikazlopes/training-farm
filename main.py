@@ -7,6 +7,7 @@ import csv
 import itertools
 import threading
 import time
+import torch
 import signal  # for handling the Ctrl+C interruption
 import subprocess  # for starting the TrainerProcess
 from flask import Flask, current_app  # importing current_app
@@ -26,6 +27,17 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+current_gpu_id = -1
+
+def get_gpu_id():
+    global current_gpu_id
+    num_gpus = torch.cuda.device_count()
+    if num_gpus == 0:
+        return -1
+    current_gpu_id = (current_gpu_id + 1) % num_gpus
+    return current_gpu_id
+
+
 def generate_combinations():
     configurations = CONFIGURATIONS.copy()
     steps = configurations.pop('steps')
@@ -44,14 +56,15 @@ def generate_combinations():
 
 
 class TrainerProcess:
-    def __init__(self, uid, script, config):
+    def __init__(self, uid, script, config, gpu_id=-1):
         self.script = script
         self.config = config
         self.uid = uid
+        self.gpu_id = gpu_id
         self.process = None
 
     def start(self):
-        args = [sys.executable, self.script, '--uid', self.uid]
+        args = [sys.executable, self.script, '--uid', self.uid, '--gpu_id', str(self.gpu_id)]
         for key, value in self.config.items():
             if key == "ticker_list":
                 value = ','.join(value)
@@ -59,7 +72,8 @@ class TrainerProcess:
                 value = str(value)
             args.extend([f'--{key}', str(value)])
         self.process = subprocess.Popen(args)
-        logger.info("Started %s with UID: %s and Config: %s", self.script, self.uid, self.config)
+        logger.info("Started %s with UID: %s, GPU ID: %d, and Config: %s", self.script, self.uid, self.gpu_id, self.config)
+
 
     def terminate(self):
         if self.process:
@@ -77,7 +91,8 @@ class ProcessManager:
     def start_process(self, script):
         uid = hashlib.md5(str(uuid.uuid4()).encode('utf-8')).hexdigest()[:6]
         config = self.configurations[self.current_config_index]
-        proc = TrainerProcess(uid, script, config)
+        gpu_id = get_gpu_id()
+        proc = TrainerProcess(uid, script, config, gpu_id)
         proc.start()
         self.processes[uid] = proc
         self.last_active[uid] = datetime.now()
