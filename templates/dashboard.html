@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Dashboard</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+    <!-- Progress bar container -->
+    <div style="position: relative; background-color: #e0e0e0; padding: 10px; border-radius: 4px;">
+        <!-- Green progress bar -->
+        <div class="progress-bar" style="width: {{ '%.2f'|format(progress_percentage) }}%; background-color: #4caf50; height: 100%; border-radius: 4px;"></div>
+        
+        <!-- Percentage text centered -->
+        <div id= "progress-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: black;">
+            {{ '%.2f'|format(progress_percentage) }}%
+        </div>
+    </div>
+
+
+    <!-- Leaderboard -->
+    <h2>Top 5 Leaderboard</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>UID</th>
+                <th>Return Value</th>
+            </tr>
+        </thead>
+        <tbody id="leaderboard">
+            {% for index, ((script, uid), value) in leaderboard %}
+            <tr>
+                <td>{{ index + 1 }}</td>
+                <td>{{ uid }}</td>
+                <td>{{ '%.2f'|format(value['return_value']) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Active Processes</h3>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>UID</th>
+                <th>Last Value</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="active_processes">
+            {% for process in active_processes %}
+            <tr>
+                <td>{{ process.uid }}</td>
+                <td>{{ '%.2f'|format(process.last_value) }}</td>
+                <td><button onclick="stopProcess('{{ process.uid }}')">Stop</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- <h3>Completed Processes</h3>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>UID</th>
+                <th>Return Value</th>
+            </tr>
+        </thead>
+        <tbody id="completed_processes">
+            {% for process in completed_processes %}
+            <tr>
+                <td>{{ process.uid }}</td>
+                <td>{{ '%.2f'|format(process.return_value) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table> -->
+
+    <button onclick="startNewProcess()">Start New Process</button>
+    <button onclick="stopAllProcesses()">Stop All</button>
+
+    <!-- Load Socket.IO -->
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+
+    <!-- Your updated script -->
+    <script>
+        var socket = io.connect('http://localhost:5678');
+
+        socket.on('connect', function() {
+            console.log("Connected to the server");
+        });
+
+        socket.on('update_leaderboard', function(data) {
+            updateLeaderboard(data);
+        });
+
+        socket.on('update_active_processes', function(data) {
+            updateActiveProcesses(data);
+        });
+
+        socket.on('update_completed_processes', function(data) {
+            // updateCompletedProcesses(data);
+        });
+
+        socket.on('update_progress', function(data) {
+            console.log("Received progress update:", data);
+            updateProgressBar(data);
+        });
+
+
+        function updateLeaderboard(data) {
+            const tbody = document.getElementById("leaderboard");
+            tbody.innerHTML = "";
+            data.forEach(([tuple, value], idx) => {
+                const uid = tuple[1]; 
+                const formattedValue = parseFloat(value['return_value']).toFixed(2);
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${idx + 1}</td>
+                    <td>${uid}</td>
+                    <td>${formattedValue}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+
+
+        function updateActiveProcesses(data) {
+            const tbody = document.getElementById("active_processes");
+            tbody.innerHTML = "";
+            data.forEach(process => {
+                const formattedValue = parseFloat(process.last_value).toFixed(2);
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${process.uid}</td>
+                    <td>${formattedValue}</td>
+                    <td><button onclick="stopProcess('${process.uid}')">Stop</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Currently not using
+        // function updateCompletedProcesses(data) {
+        //     const tbody = document.getElementById("completed_processes");
+        //     tbody.innerHTML = "";
+        //     data.forEach(process => {
+        //         const formattedValue = parseFloat(process.return_value).toFixed(2);
+        //         const tr = document.createElement("tr");
+        //         tr.innerHTML = `
+        //             <td>${process.uid}</td>
+        //             <td>${formattedValue}</td>
+        //         `;
+        //         tbody.appendChild(tr);
+        //     });
+        // }
+
+        function updateProgressBar(percentage) {
+            const progressBar = document.querySelector('.progress-bar'); // Add this class to your progress bar div for selection
+            const progressText = document.getElementById('progress-text');
+            progressBar.style.width = percentage + "%";
+            progressBar.textContent = percentage.toFixed(0) + "%";
+            progressText.textContent = percentage.toFixed(0) + "%";
+        }
+
+
+        function startNewProcess() {
+            fetch('/start_process', {method: 'POST'}).then(data => {
+                // Handle response, like updating UI or giving a notification
+            });
+        }
+
+        function stopProcess(uid) {
+            fetch('/stop_process/' + uid, {method: 'POST'}).then(response => response.json()).then(data => {
+                // Remove the process row from the table
+                const btn = document.querySelector(`button[onclick="stopProcess('${uid}')"]`);
+                if (btn) {
+                    const tr = btn.closest('tr');
+                    tr.parentNode.removeChild(tr);
+                }
+                // Handle other responses if needed
+            });
+        }
+
+        function stopAllProcesses() {
+            fetch('/stop_all_processes', {method: 'POST'}).then(response => response.json()).then(data => {
+                // Clear the active processes table
+                const tbody = document.getElementById("active_processes");
+                tbody.innerHTML = "";
+                // Handle other responses if needed
+            });
+        }
+
+    </script>
+</body>
+</html>
