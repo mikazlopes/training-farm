@@ -72,6 +72,8 @@ To run the script you just need to type "python main.py", it will start initiali
 
 Depending on how many different combinations of configurations you have, it can take several days to run through all of them, especially if the period of historical stock market is higher than 5 years.
 
+You can check the live performance by opening http://localhost:5678/dashboard, it will show how far is the training process in the top progress bar, top results and the ongoing active processes and the last rewards they got. You can stop individual processes or start new ones.
+
 ## Docker
 
 You can also use the Dockerfile to build an image with everything pre-installed. The image is built for NVIDIA CUDA enabled Docker servers. 
@@ -79,6 +81,8 @@ You can also use the Dockerfile to build an image with everything pre-installed.
 docker build --platform linux/amd64 -f docker/Dockerfile -t training-farm .
 docker run -it --rm training-farm
 ```
+You will need to open port 5678 if you want to access the dashboard webpage.
+
 ## License
 MIT
 
