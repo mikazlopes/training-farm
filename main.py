@@ -333,7 +333,7 @@ def start_scripts(script, instances, manager):
 
 if __name__ == "__main__":
     SCRIPT_PATH = 'trainer.py'
-    NUM_INSTANCES = 3
+    NUM_INSTANCES = 8
     
     configurations = generate_combinations()
     manager = ProcessManager(configurations=configurations)

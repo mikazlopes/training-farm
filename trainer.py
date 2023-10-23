@@ -77,9 +77,9 @@ def subtract_years_from_date(date_str, period_years):
     return new_date_obj.strftime("%Y-%m-%d")
 
 TRAIN_START_DATE = subtract_years_from_date("2022-01-01", period_years=period_years)
-TRAIN_END_DATE = '2022-12-31'
-TEST_START_DATE = '2023-01-01'
-TEST_END_DATE = '2023-09-28'
+TRAIN_END_DATE = '2023-03-31'
+TEST_START_DATE = '2023-04-01'
+TEST_END_DATE = '2023-10-22'
 
 action_dim = len(ticker_list)
 state_dim = 1 + 2 + 3 * action_dim + len(INDICATORS) * action_dim
@@ -826,7 +826,7 @@ trainTest.train(start_date = TRAIN_START_DATE,
     API_SECRET = API_SECRET, 
     API_BASE_URL = API_BASE_URL,
     erl_params=ERL_PARAMS,
-    cwd='./trained_models/' + str(script_uid) + '-steps-' + str(totalTimesteps) + str(ERL_PARAMS["net_dimension"]) + '-' + TRAIN_START_DATE,  #current_working_dir,
+    cwd='./trained_models/' + str(script_uid) + '-' + str(ERL_PARAMS["net_dimension"]) + '-' + TRAIN_START_DATE,  #current_working_dir,
     break_step=1e5)
    
 
@@ -844,7 +844,7 @@ account_value_erl=trainTest.test(start_date = TEST_START_DATE,
                     API_KEY = API_KEY, 
                     API_SECRET = API_SECRET, 
                     API_BASE_URL = API_BASE_URL,
-                    cwd='./trained_models/' + str(script_uid) + '-steps-' + str(totalTimesteps) + str(ERL_PARAMS["net_dimension"]) + '-' + TRAIN_START_DATE,  #current_working_dir,
+                    cwd='./trained_models/' + str(script_uid) + '-' + str(ERL_PARAMS["net_dimension"]) + '-' + TRAIN_START_DATE,  #current_working_dir,
                     net_dimension = ERL_PARAMS['net_dimension'])
    
 
