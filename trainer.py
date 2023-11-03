@@ -6,7 +6,6 @@ API_SECRET = "QpiszkVxetaOhYCPEhafggIGU6CaIV8gbmIXhaFu"
 API_BASE_URL = 'https://paper-api.alpaca.markets'
 data_url = 'wss://data.alpaca.markets'
 
-from finrl.config_tickers import MIGUEL_TICKER, DOW_30_TICKER, NAS_100_TICKER
 from finrl.config import INDICATORS
 
 
