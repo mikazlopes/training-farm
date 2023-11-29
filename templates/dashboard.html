@@ -1,87 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Training Dashboard</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
 
-    <!-- Progress bar container -->
-    <div style="position: relative; background-color: #e0e0e0; padding: 10px; border-radius: 4px;">
-        <!-- Green progress bar -->
-        <div class="progress-bar" style="width: {{ '%.2f'|format(progress_percentage) }}%; background-color: #4caf50; height: 100%; border-radius: 4px;"></div>
-        
-        <!-- Percentage text centered -->
-        <div id= "progress-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: black;">
-            {{ '%.2f'|format(progress_percentage) }}%
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Custom CSS -->
+    <style>
+        /* You can add custom styles here */
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="container my-4">
+        <!-- Progress Bar -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Progress</h5>
+                <div class="progress">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ '%.2f'|format(progress_percentage) }}%;" aria-valuenow="{{ progress_percentage }}" aria-valuemin="0" aria-valuemax="100">{{ '%.2f'|format(progress_percentage) }}%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Top 5 Leaderboard</h5>
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>UID</th>
+                            <th>Return Value</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard">
+                        <!-- Content injected by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Active Processes -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Active Processes</h5>
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>UID</th>
+                            <th>Last Value</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="active_processes">
+                        <!-- Content injected by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Control Buttons -->
+        <div class="mb-4">
+            <button class="btn btn-primary" onclick="startNewProcess()">Start New Process</button>
+            <button class="btn btn-danger" onclick="stopAllProcesses()">Stop All</button>
         </div>
     </div>
-
-
-    <!-- Leaderboard -->
-    <h2>Top 5 Leaderboard</h2>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Rank</th>
-                <th>UID</th>
-                <th>Return Value</th>
-            </tr>
-        </thead>
-        <tbody id="leaderboard">
-            {% for index, ((script, uid), value) in leaderboard %}
-            <tr>
-                <td>{{ index + 1 }}</td>
-                <td>{{ uid }}</td>
-                <td>{{ '%.2f'|format(value['return_value']) }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <h3>Active Processes</h3>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>UID</th>
-                <th>Last Value</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody id="active_processes">
-            {% for process in active_processes %}
-            <tr>
-                <td>{{ process.uid }}</td>
-                <td>{{ '%.2f'|format(process.last_value) }}</td>
-                <td><button onclick="stopProcess('{{ process.uid }}')">Stop</button></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <!-- <h3>Completed Processes</h3>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>UID</th>
-                <th>Return Value</th>
-            </tr>
-        </thead>
-        <tbody id="completed_processes">
-            {% for process in completed_processes %}
-            <tr>
-                <td>{{ process.uid }}</td>
-                <td>{{ '%.2f'|format(process.return_value) }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table> -->
-
-    <button onclick="startNewProcess()">Start New Process</button>
-    <button onclick="stopAllProcesses()">Stop All</button>
 
     <!-- Load Socket.IO -->
     <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>

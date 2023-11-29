@@ -291,7 +291,7 @@ def handle_message(data):
         logger.info(f'{uid}: {collected_values[uid]}')
         if len(collected_values[uid]) == 3:
             average = sum(collected_values[uid]) / 3
-            if average < 0:
+            if average < -300:
                 logger.info(f"Average for {uid} too low, killing training")
                 # Remove the process from collected_values
                 if uid in collected_values:
@@ -333,7 +333,7 @@ def start_scripts(script, instances, manager):
 
 if __name__ == "__main__":
     SCRIPT_PATH = 'trainer.py'
-    NUM_INSTANCES = 8
+    NUM_INSTANCES = 3
     
     configurations = generate_combinations()
     manager = ProcessManager(configurations=configurations)
