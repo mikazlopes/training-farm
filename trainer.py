@@ -31,7 +31,8 @@ import socketio
 import argparse
 import threading
 import ast
-from datetime import datetime, timedelta
+from datetime import datetime
+import hashlib
 
 
 
@@ -654,7 +655,12 @@ class TrainingTesting:
     CACHE_DIR = './cache'  # Specify your cache directory
 
     def _generate_cache_key(self, tickers, start_date, end_date):
-        return f"{'_'.join(tickers)}_{start_date}_{end_date}.pkl"
+        # Concatenate tickers with start and end dates
+        combined_string = '_'.join(tickers) + f"_{start_date}_{end_date}"
+        # Create a hash of the combined string
+        hashed_key = hashlib.md5(combined_string.encode()).hexdigest()
+        # Return the hash with a .pkl extension
+        return f"{hashed_key}.pkl"
 
     def _save_to_cache(self, data, cache_key):
         os.makedirs(self.CACHE_DIR, exist_ok=True)
