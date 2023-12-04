@@ -77,9 +77,9 @@ def subtract_years_from_date(date_str, period_years):
     return new_date_obj.strftime("%Y-%m-%d")
 
 TRAIN_START_DATE = subtract_years_from_date("2022-01-01", period_years=period_years)
-TRAIN_END_DATE = '2023-03-31'
-TEST_START_DATE = '2023-04-01'
-TEST_END_DATE = '2023-10-22'
+TRAIN_END_DATE = '2023-06-30'
+TEST_START_DATE = '2023-07-01'
+TEST_END_DATE = '2023-12-01'
 
 action_dim = len(ticker_list)
 state_dim = 1 + 2 + 3 * action_dim + len(INDICATORS) * action_dim
@@ -832,7 +832,7 @@ trainTest.train(start_date = TRAIN_START_DATE,
     API_BASE_URL = API_BASE_URL,
     erl_params=ERL_PARAMS,
     cwd='./trained_models/' + str(script_uid) + '-' + str(ERL_PARAMS["net_dimension"]) + '-' + TRAIN_START_DATE,  #current_working_dir,
-    break_step=1e5)
+    break_step=5e5)
    
 
 
