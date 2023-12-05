@@ -1,5 +1,5 @@
 # Use official Ubuntu image as a parent image
-FROM nvidia/cuda:12.0.1-devel-ubuntu22.04
+FROM nvidia/cuda:12.0.0-devel-ubuntu22.04
 
 # Set environment variables to suppress warnings and to avoid prompts
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn \
@@ -23,6 +23,8 @@ RUN pip install \
 RUN git clone https://github.com/mikazlopes/training-farm.git && \
     cd training-farm && \
     pip install -r requirements.txt
+
+EXPOSE 5678
 
 WORKDIR /training-farm
 
