@@ -194,6 +194,24 @@ def dashboard():
                            completed_processes=completed_processes,
                            progress_percentage=progress_percentage)
 
+def emit_initial_data():
+    """Emit the initial data to the connected client."""
+    active_processes = get_active_processes()
+    top_5_leaderboard = get_leaderboard_data()
+    progress_percentage = get_progress_percentage()
+    sio.emit('update_active_processes', active_processes)
+    sio.emit('update_leaderboard', top_5_leaderboard)
+    sio.emit('update_progress', progress_percentage)
+
+def get_leaderboard_data():
+    """Get the top 5 entries from the leaderboard."""
+    return list(enumerate(list(manager.leaderboard.items())[:5]))
+
+def get_progress_percentage():
+    """Calculate and return the progress percentage."""
+    total_configurations = len(manager.configurations)
+    return 100 * manager.current_config_index / total_configurations if total_configurations else 0
+
 def get_active_processes():
     processes = []
     for uid, values in collected_values.items():
@@ -239,8 +257,9 @@ def index():
 
 @sio.on('connect')
 def on_connect():
-    send_active_processes()   # Emit initial data
-    send_completed_processes()   # Emit initial data
+    #send_active_processes()   # Emit initial data
+    #send_completed_processes()   # Emit initial data
+    emit_initial_data()
     logger.info("Client Connected - Server side")
 
 @sio.on('join')
