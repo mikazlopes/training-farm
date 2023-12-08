@@ -1,8 +1,8 @@
-from finrl.config_tickers import MIGUEL_TICKER, DOW_30_TICKER, NAS_100_TICKER, BOT30_TICKER, ROUNDED_TICKER, TECH_TICKER, SINGLE_TICKER
+from finrl.config_tickers import MIGUEL_TICKER, DOW_30_TICKER, NAS_100_TICKER, BOT30_TICKER, ROUNDED_TICKER, TECH_TICKER, SINGLE_TICKER, DRL_ALGO_TICKERS
 
 CONFIGURATIONS = {
-    "ticker_list": [NAS_100_TICKER],
-    "period_years": [5,10],
+    "ticker_list": [DRL_ALGO_TICKERS],
+    "period_years": [10],
     "steps": ["period_years * 100000"],
     "learning_rate": [4e-6, 3e-6, 2e-6, 1e-6],
     "batch_size": [512, 1024, 2048, 4096],
