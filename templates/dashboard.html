@@ -77,17 +77,19 @@
 
     <!-- Your updated script -->
     <script>
-        var socket = io.connect('http://localhost:5678');
+        var socket = io.connect('http://192.168.150.60:5678');
 
         socket.on('connect', function() {
             console.log("Connected to the server");
         });
 
         socket.on('update_leaderboard', function(data) {
+            console.log("Received Leaderboard data: ", data);
             updateLeaderboard(data);
         });
 
         socket.on('update_active_processes', function(data) {
+            console.log("Received Active process data data: ", data);
             updateActiveProcesses(data);
         });
 
