@@ -14,11 +14,15 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/* \
     && ln -s /usr/bin/python3 /usr/bin/python
 
+
 # Install Optuna, Optuna-dashboard and additional requirements
 RUN pip install \
     optuna optuna-dashboard \
+    mysql-connector-python \
+    pymysql \
     wrds swig \
     git+https://github.com/mikazlopes/FinRLOptimized
+
 
 # Clone your training-farm repository and install additional requirements
 RUN git clone -b adding-optuna https://github.com/mikazlopes/training-farm.git && \
@@ -32,19 +36,17 @@ WORKDIR /training-farm
 
 # Create a cache directory and copy local contents into it
 RUN mkdir cache
-COPY ./cache ./cache
 
-# Copy entrypoint script into the image
-COPY entrypoint.sh /entrypoint.sh
+# Start MySQL and setup database
+RUN service mysql start && \
+    mysql -u root -e "CREATE DATABASE IF NOT EXISTS optuna_example;" && \
+    mysql -u root -e "CREATE USER IF NOT EXISTS 'optuna_user'@'localhost' IDENTIFIED BY 'r00t4dm1n';" && \
+    mysql -u root -e "GRANT ALL PRIVILEGES ON optuna_example.* TO 'optuna_user'@'localhost'; FLUSH PRIVILEGES;"
 
-# Set the entrypoint script to be executable
-RUN chmod +x /entrypoint.sh
-
-# Set the entrypoint
-ENTRYPOINT ["/entrypoint.sh"]
 
 # Command to run the application, default arguments can be overridden at runtime
-CMD ["python", "hp-tuner.py", "--period_years", "10", "--gpu_id", "0"]
+# Optuna-dashboard is started here in the background and then the main python script
+#CMD service mysql start && python hp-tuner.py --period_years 1 --gpu_id 0 & optuna-dashboard --port 8080 mysql://optuna_user:r00t4dm1n@localhost/optuna_example 
 
 
 
