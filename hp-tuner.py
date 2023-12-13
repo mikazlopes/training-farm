@@ -845,6 +845,7 @@ def run_multiprocessing():
     for _ in range(process_count):
         p = multiprocessing.Process(target=run_optimization)
         p.start()
+        time.sleep(2)
         processes.append(p)
 
     for p in processes:
