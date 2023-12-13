@@ -7,7 +7,7 @@ API_BASE_URL = 'https://paper-api.alpaca.markets'
 data_url = 'wss://data.alpaca.markets'
 
 from finrl.config import INDICATORS
-from finrl.config_tickers import MIGUEL_TICKER
+from finrl.config_tickers import DRL_ALGO_TICKERS
 import optuna
 from optuna.trial import TrialState
 import multiprocessing
@@ -39,7 +39,7 @@ parser.add_argument('--gpu_id', type=int, required=True, help='ID of GPU to be u
 args = parser.parse_args()
 
 # Access the arguments as attributes of args
-ticker_list = MIGUEL_TICKER
+ticker_list = DRL_ALGO_TICKERS
 period_years = args.period_years
 totalTimesteps = period_years * 100000
 
@@ -745,7 +745,7 @@ class TrainingTesting:
     
     def optimize_hyperparameters(self):
         study_name = "FinRL-HP"
-        storage_url = "mysql+mysqlconnector://optuna_user:password@localhost/optuna_example"
+        storage_url = "mysql+mysqlconnector://optuna_user:r00t4dm1n@localhost/optuna_example"
         study = optuna.create_study(
             study_name=study_name,
             storage=storage_url,
@@ -839,7 +839,7 @@ def run_optimization():
 
 
 def run_multiprocessing():
-    process_count = 5  # Number of processes to run in parallel
+    process_count = 2  # Number of processes to run in parallel
     processes = []
 
     for _ in range(process_count):

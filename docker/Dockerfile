@@ -21,16 +21,30 @@ RUN pip install \
     git+https://github.com/mikazlopes/FinRLOptimized
 
 # Clone your training-farm repository and install additional requirements
-RUN git clone https://github.com/mikazlopes/training-farm.git && \
+RUN git clone -b adding-optuna https://github.com/mikazlopes/training-farm.git && \
     cd training-farm && \
     pip install -r requirements.txt
 
 # Expose ports for the services
-EXPOSE 5678 8080
-
-# Set up MySQL database and user for Optuna
-RUN service mysql start && \
-    mysql -u root -p -e "CREATE DATABASE optuna_example;" && \
-    mysql -u root -p -e "CREATE USER 'optuna_user'@'localhost' IDENTIFIED BY 'r00t4dm1n'; GRANT ALL PRIVILEGES ON optuna_example.* TO 'optuna_user'@'localhost'; FLUSH PRIVILEGES;"
+EXPOSE 5678 8080 3306
 
 WORKDIR /training-farm
+
+# Create a cache directory and copy local contents into it
+RUN mkdir cache
+COPY ./cache ./cache
+
+# Copy entrypoint script into the image
+COPY entrypoint.sh /entrypoint.sh
+
+# Set the entrypoint script to be executable
+RUN chmod +x /entrypoint.sh
+
+# Set the entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
+
+# Command to run the application, default arguments can be overridden at runtime
+CMD ["python", "hp-tuner.py", "--period_years", "10", "--gpu_id", "0"]
+
+
+
