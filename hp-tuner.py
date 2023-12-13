@@ -747,8 +747,8 @@ class TrainingTesting:
         study_name = "FinRL-HP"
         storage_url = "mysql+mysqlconnector://optuna_user:r00t4dm1n@localhost/optuna_example"
         study = optuna.create_study(
-            study_name=study_name,
             load_if_exists=True,
+            study_name=study_name,
             storage=storage_url,
             direction='maximize',
             pruner=optuna.pruners.MedianPruner()
