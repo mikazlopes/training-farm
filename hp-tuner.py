@@ -748,7 +748,7 @@ class TrainingTesting:
     
     def optimize_hyperparameters(self):
         study_name = "FinRL-HP"
-        storage_url = "mysql+mysqlconnector://optuna_user:password@localhost/optuna_example"
+        storage_url = "mysql+mysqlconnector://optuna_user:r00t4dm1n@localhost/optuna_example"
 
         # Creating RDBStorage with heartbeat_interval and grace_period
         storage = optuna.storages.RDBStorage(
