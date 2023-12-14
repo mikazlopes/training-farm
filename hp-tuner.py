@@ -7,7 +7,7 @@ API_BASE_URL = 'https://paper-api.alpaca.markets'
 data_url = 'wss://data.alpaca.markets'
 
 from finrl.config import INDICATORS
-from finrl.config_tickers import SINGLE_TICKER
+from finrl.config_tickers import DRL_ALGO_TICKERS
 import optuna
 from optuna.trial import TrialState
 import multiprocessing
@@ -40,7 +40,7 @@ parser.add_argument('--num_instances', type=int, required=True, help='Number of 
 args = parser.parse_args()
 
 # Access the arguments as attributes of args
-ticker_list = SINGLE_TICKER
+ticker_list = DRL_ALGO_TICKERS
 period_years = args.period_years
 num_instances = args.num_instances
 totalTimesteps = period_years * 100000

@@ -3,8 +3,11 @@
 # Start MySQL
 service mysql start
 
-# Start hp-tuner.py in the foreground and wait for it to finish
-python hp-tuner.py --period_years 1 --num_instances 2 &
+# Use NUM_INSTANCES environment variable if set, otherwise use default value 2
+num_instances=${NUM_INSTANCES:-2}
+
+# Start hp-tuner.py in the background with the specified number of instances
+python hp-tuner.py --period_years 10 --num_instances "$num_instances" &
 
 sleep 5
 
