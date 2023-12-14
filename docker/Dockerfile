@@ -30,12 +30,13 @@ RUN git clone -b adding-optuna https://github.com/mikazlopes/training-farm.git &
     pip install -r requirements.txt
 
 # Expose ports for the services
-EXPOSE 5678 8080 3306
+EXPOSE 8080 3306
 
 WORKDIR /training-farm
 
 # Create a cache directory and copy local contents into it
 RUN mkdir cache
+COPY ./cache ./cache
 
 # Start MySQL and setup database
 RUN service mysql start && \

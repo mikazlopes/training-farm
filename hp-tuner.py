@@ -839,7 +839,7 @@ def run_optimization():
 
 
 def run_multiprocessing():
-    process_count = 2  # Number of processes to run in parallel
+    process_count = 4  # Number of processes to run in parallel
     processes = []
 
     for _ in range(process_count):
