@@ -66,7 +66,7 @@ def subtract_years_from_date(date_str, period_years):
 TRAIN_START_DATE = subtract_years_from_date("2022-01-01", period_years=period_years)
 TRAIN_END_DATE = '2023-06-30'
 TEST_START_DATE = '2023-07-01'
-TEST_END_DATE = '2023-12-11'
+TEST_END_DATE = '2023-12-13'
 
 action_dim = len(ticker_list)
 state_dim = 1 + 2 + 3 * action_dim + len(INDICATORS) * action_dim

@@ -23,7 +23,7 @@ RUN pip install \
     wrds swig \
     git+https://github.com/mikazlopes/FinRLOptimized
 
-
+ARG CACHEBUST=1
 # Clone your training-farm repository and install additional requirements
 RUN git clone -b adding-optuna https://github.com/mikazlopes/training-farm.git && \
     cd training-farm && \
@@ -39,10 +39,13 @@ RUN mkdir cache
 COPY ./cache ./cache
 
 # Start MySQL and setup database
+RUN sed -i 's/bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
+
+# Initialize MySQL data directory and start the MySQL service
 RUN service mysql start && \
     mysql -u root -e "CREATE DATABASE IF NOT EXISTS optuna_example;" && \
-    mysql -u root -e "CREATE USER IF NOT EXISTS 'optuna_user'@'localhost' IDENTIFIED BY 'r00t4dm1n';" && \
-    mysql -u root -e "GRANT ALL PRIVILEGES ON optuna_example.* TO 'optuna_user'@'localhost'; FLUSH PRIVILEGES;"
+    mysql -u root -e "CREATE USER IF NOT EXISTS 'optuna_user'@'%' IDENTIFIED BY 'r00t4dm1n';" && \
+    mysql -u root -e "GRANT ALL PRIVILEGES ON optuna_example.* TO 'optuna_user'@'%'; FLUSH PRIVILEGES;"
 
 COPY start_services.sh /start_services.sh
 RUN chmod +x /start_services.sh

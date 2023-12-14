@@ -4,7 +4,7 @@
 service mysql start
 
 # Start hp-tuner.py in the background
-python hp-tuner.py --period_years 10 --gpu_id 0 &
+python run-hp.py &
 
 sleep 5
 
