@@ -21,13 +21,12 @@ def start_hp_tuner(num_instances, script_name='hp-tuner.py'):
     num_gpus = torch.cuda.device_count()
     current_gpu_id = -1
 
-    for instance in range(num_instances):
-        current_gpu_id = get_gpu_id(current_gpu_id, num_gpus)
-        period_years = CONFIGURATIONS.get('period_years', [1])[0]  # Default to [1] if not set
-        args = [sys.executable, script_name, '--gpu_id', str(current_gpu_id),
-                '--num_instances', str(num_instances), '--period_years', str(period_years)]
-        subprocess.Popen(args)
-        logging.info("Started instance")
+    current_gpu_id = get_gpu_id(current_gpu_id, num_gpus)
+    period_years = CONFIGURATIONS.get('period_years', [1])[0]  # Default to [1] if not set
+    args = [sys.executable, script_name, '--gpu_id', str(current_gpu_id),
+            '--num_instances', str(num_instances), '--period_years', str(period_years)]
+    subprocess.Popen(args)
+    logging.info("Started instance")
 
 if __name__ == "__main__":
     # Reading number of instances from environment variable or defaulting to 2
