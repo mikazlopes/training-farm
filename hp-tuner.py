@@ -31,16 +31,18 @@ import hashlib
 
 
 
-parser = argparse.ArgumentParser(description='Trainer Script')
+parser = argparse.ArgumentParser(description='Trial Script')
     
 parser.add_argument('--period_years', type=int, required=True, help='Period in years')
 parser.add_argument('--gpu_id', type=int, required=True, help='ID of GPU to be used')
+parser.add_argument('--num_instances', type=int, required=True, help='Number of trials to run in parallel')
 
 args = parser.parse_args()
 
 # Access the arguments as attributes of args
 ticker_list = DRL_ALGO_TICKERS
 period_years = args.period_years
+num_instances = args.num_instances
 totalTimesteps = period_years * 100000
 
 id_name = 'hp-tuner'
@@ -839,10 +841,9 @@ def run_optimization():
 
 
 def run_multiprocessing():
-    process_count = 4  # Number of processes to run in parallel
     processes = []
 
-    for _ in range(process_count):
+    for _ in range(num_instances):
         p = multiprocessing.Process(target=run_optimization)
         p.start()
         time.sleep(10)

@@ -11,4 +11,3 @@ sleep 5
 # Start optuna-dashboard
 optuna-dashboard mysql+pymysql://optuna_user:r00t4dm1n@localhost/optuna_example --host "0.0.0.0"
 
-
