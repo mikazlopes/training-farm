@@ -7,7 +7,7 @@ API_BASE_URL = 'https://paper-api.alpaca.markets'
 data_url = 'wss://data.alpaca.markets'
 
 from finrl.config import INDICATORS
-from finrl.config_tickers import DRL_ALGO_TICKERS
+from finrl.config_tickers import SINGLE_TICKER
 import optuna
 from optuna.trial import TrialState
 import multiprocessing
@@ -40,10 +40,11 @@ parser.add_argument('--num_instances', type=int, required=True, help='Number of 
 args = parser.parse_args()
 
 # Access the arguments as attributes of args
-ticker_list = DRL_ALGO_TICKERS
+ticker_list = SINGLE_TICKER
 period_years = args.period_years
 num_instances = args.num_instances
 totalTimesteps = period_years * 100000
+gpuID = -1
 
 id_name = 'hp-tuner'
 
@@ -142,7 +143,7 @@ class Config:
         self.reward_scale = 1.0  # an approximate target reward usually be closed to 256
 
         '''Arguments for training'''
-        self.gpu_id = int(0)  # `int` means the ID of single GPU, -1 means CPU
+        self.gpu_id = int(gpuID)  # `int` means the ID of single GPU, -1 means CPU
         self.net_dims = (64, 32)  # the middle layer dimension of MLP (MultiLayer Perceptron)
         self.learning_rate = 6e-5  # 2 ** -14 ~= 6e-5
         self.soft_update_tau = 5e-3  # 2 ** -8 ~= 5e-3
@@ -199,7 +200,7 @@ def build_env(env_class=None, env_args=None):
 
 
 class AgentBase:
-    def __init__(self, net_dims: [int], state_dim: int, action_dim: int, gpu_id: int = 0, args: Config = Config()):
+    def __init__(self, net_dims: [int], state_dim: int, action_dim: int, gpu_id: int = gpuID, args: Config = Config()):
         self.state_dim = state_dim
         self.action_dim = action_dim
 
@@ -210,7 +211,7 @@ class AgentBase:
         self.soft_update_tau = args.soft_update_tau
 
         self.states = None  # assert self.states == (1, state_dim)
-        logging.info("Selected GPU")
+        logging.info(f"Agent initiated using GPU {gpuID}")
         self.device = torch.device(f"cuda:{gpuID}" if (torch.cuda.is_available() and (gpuID >= 0)) else "cpu")
 
         act_class = getattr(self, "act_class", None)
@@ -238,7 +239,7 @@ class AgentBase:
 
 
 class AgentPPO(AgentBase):
-    def __init__(self, net_dims: [int], state_dim: int, action_dim: int, gpu_id: int = 0, args: Config = Config()):
+    def __init__(self, net_dims: [int], state_dim: int, action_dim: int, gpu_id: int = gpuID, args: Config = Config()):
         self.if_off_policy = False
         self.act_class = getattr(self, "act_class", ActorPPO)
         self.cri_class = getattr(self, "cri_class", CriticPPO)
@@ -374,7 +375,7 @@ def train_agent(args: Config, trial):
     env = build_env(args.env_class, args.env_args)
     agent = args.agent_class(args.net_dims, args.state_dim, args.action_dim, gpu_id=args.gpu_id, args=args)
     agent.states = env.reset()[0][np.newaxis, :]
-
+    logging.info(f"Selected for training GPU {gpuID}")
     evaluator = Evaluator(eval_env=build_env(args.env_class, args.env_args),
                           eval_per_step=args.eval_per_step,
                           eval_times=args.eval_times,
@@ -698,7 +699,7 @@ class TrainingTesting:
         if data is None:
         # fetch data
             # download data
-            print("Not using cache")
+            logging.info("Not using cache")
             data = dp.download_data(ticker_list, self.train_start_date, self.train_end_date, self.time_interval)
             data = dp.clean_data(data)
             data = dp.add_technical_indicator(data, self.technical_indicator_list)
@@ -747,7 +748,7 @@ class TrainingTesting:
     
     def optimize_hyperparameters(self):
         study_name = "FinRL-HP"
-        storage_url = "mysql+mysqlconnector://optuna_user:r00t4dm1n@localhost/optuna_example"
+        storage_url = "mysql+mysqlconnector://optuna_user:password@localhost/optuna_example"
 
         # Creating RDBStorage with heartbeat_interval and grace_period
         storage = optuna.storages.RDBStorage(
@@ -767,10 +768,10 @@ class TrainingTesting:
 
         # Output the optimization results
         trial = study.best_trial
-        print(f'Best trial value: {trial.value}')
-        print('Best hyperparameters:')
+        logging.info(f'Best trial value: {trial.value}')
+        logging.info('Best hyperparameters:')
         for key, value in trial.params.items():
-            print(f'{key}: {value}')
+            logging.info(f'{key}: {value}')
     
 
     def test(
@@ -788,7 +789,7 @@ class TrainingTesting:
         if data is None:
         # fetch data
             # download data
-            print("Not using cache")
+            logging.info("Not using cache")
             data = dp.download_data(self.ticker_list, self.test_start_date, self.test_end_date, self.time_interval)
             data = dp.clean_data(data)
             data = dp.add_technical_indicator(data, self.technical_indicator_list)
@@ -847,7 +848,7 @@ def run_optimization():
 
     trainTest.optimize_hyperparameters()
 
-gpuID = -1
+
 
 def get_gpu_id():
     global gpuID

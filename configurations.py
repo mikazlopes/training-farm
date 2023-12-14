@@ -1,7 +1,7 @@
 from finrl.config_tickers import MIGUEL_TICKER, DOW_30_TICKER, NAS_100_TICKER, BOT30_TICKER, ROUNDED_TICKER, TECH_TICKER, SINGLE_TICKER, DRL_ALGO_TICKERS
 
 CONFIGURATIONS = {
-    "ticker_list": [MIGUEL_TICKER],
+    "ticker_list": [SINGLE_TICKER],
     "period_years": [1],
     "steps": ["period_years * 100000"],
     "learning_rate": [4e-6, 3e-6, 2e-6, 1e-6],
