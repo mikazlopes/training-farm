@@ -43,10 +43,12 @@ RUN service mysql start && \
     mysql -u root -e "CREATE USER IF NOT EXISTS 'optuna_user'@'localhost' IDENTIFIED BY 'r00t4dm1n';" && \
     mysql -u root -e "GRANT ALL PRIVILEGES ON optuna_example.* TO 'optuna_user'@'localhost'; FLUSH PRIVILEGES;"
 
+COPY start_services.sh /start_services.sh
+RUN chmod +x /start_services.sh
 
 # Command to run the application, default arguments can be overridden at runtime
 # Optuna-dashboard is started here in the background and then the main python script
-#CMD service mysql start && python hp-tuner.py --period_years 1 --gpu_id 0 & optuna-dashboard --port 8080 mysql://optuna_user:r00t4dm1n@localhost/optuna_example 
+CMD ["/start_services.sh"]
 
 
 

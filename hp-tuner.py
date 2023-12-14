@@ -664,8 +664,8 @@ class TrainingTesting:
         gamma = trial.suggest_float('gamma', 0.9, 0.9999)
         net_dimension = trial.suggest_categorical('net_dimension', ['128,64', '256,128', '512,256', '1024,512', '128,64,32', '256,128,64', '512,256,128', '1024,512,256'])
         break_step = trial.suggest_int('target_step', low=100000, high=1000000, step=20000)
-        eval_gap = trial.suggest_int('eval_gap', low=10, high=60, step=10)
-        eval_times = trial.suggest_int('eval_times', low=16, high=64, step=16)
+        eval_gap = trial.suggest_int('eval_gap', low=1000, high=10000, step=1000)
+        eval_times = trial.suggest_int('eval_times', low=2, high=16, step=1)
 
         # Set up model kwargs with the suggested hyperparameters
         model_kwargs = {
