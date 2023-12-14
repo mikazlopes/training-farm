@@ -34,7 +34,7 @@ import hashlib
 parser = argparse.ArgumentParser(description='Trial Script')
     
 parser.add_argument('--period_years', type=int, required=True, help='Period in years')
-parser.add_argument('--gpu_id', type=int, required=True, help='ID of GPU to be used')
+#parser.add_argument('--gpu_id', type=int, required=True, help='ID of GPU to be used')
 parser.add_argument('--num_instances', type=int, required=True, help='Number of trials to run in parallel')
 
 args = parser.parse_args()
@@ -47,7 +47,7 @@ totalTimesteps = period_years * 100000
 
 id_name = 'hp-tuner'
 
-gpuID = args.gpu_id
+#gpuID = args.gpu_id
 
 if not os.path.exists('logs'):
     os.makedirs('logs')
@@ -210,7 +210,7 @@ class AgentBase:
         self.soft_update_tau = args.soft_update_tau
 
         self.states = None  # assert self.states == (1, state_dim)
-    
+        logging.info("Selected GPU")
         self.device = torch.device(f"cuda:{gpuID}" if (torch.cuda.is_available() and (gpuID >= 0)) else "cpu")
 
         act_class = getattr(self, "act_class", None)
@@ -847,11 +847,23 @@ def run_optimization():
 
     trainTest.optimize_hyperparameters()
 
+gpuID = -1
+
+def get_gpu_id():
+    global gpuID
+    num_gpus = torch.cuda.device_count()
+    if num_gpus == 0:
+        return -1
+    gpuID = (gpuID + 1) % num_gpus
+    return gpuID
+
 
 def run_multiprocessing():
     processes = []
 
     for _ in range(num_instances):
+        global gpuID
+        gpuID = get_gpu_id()
         p = multiprocessing.Process(target=run_optimization)
         p.start()
         time.sleep(10)
