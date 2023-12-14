@@ -748,10 +748,18 @@ class TrainingTesting:
     def optimize_hyperparameters(self):
         study_name = "FinRL-HP"
         storage_url = "mysql+mysqlconnector://optuna_user:r00t4dm1n@localhost/optuna_example"
+
+        # Creating RDBStorage with heartbeat_interval and grace_period
+        storage = optuna.storages.RDBStorage(
+            url=storage_url,
+            heartbeat_interval=60 * 60 * 3,  # Reporting interval of 3 hours
+            grace_period=60 * 60 * 6  # 6 hours grace period for zombie trials
+        )
+
         study = optuna.create_study(
             load_if_exists=True,
             study_name=study_name,
-            storage=storage_url,
+            storage=storage,
             direction='maximize',
             pruner=optuna.pruners.MedianPruner()
         )
