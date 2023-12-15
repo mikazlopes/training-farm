@@ -757,7 +757,7 @@ class TrainingTesting:
         
         # Decide the storage URL based on study mode
         if study_mode.lower() == "client":
-            storage_url = f"mysql+mysqlconnector://{db_user}:{db_password}@{server_address}:{server_port}/optuna"
+            storage_url = f"mysql+mysqlconnector://{db_user}:{db_password}@{server_address}:{server_port}/optuna_example"
         else:
             # Local MySQL server settings
             storage_url = "mysql+mysqlconnector://optuna_user:r00t4dm1n@localhost/optuna_example"
