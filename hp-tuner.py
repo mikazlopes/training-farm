@@ -853,7 +853,7 @@ def run_optimization():
         env=env,
         model_name='ppo',
         if_vix=True,
-        n_trials=200, 
+        n_trials=500, 
         API_KEY = API_KEY, 
         API_SECRET = API_SECRET, 
         API_BASE_URL = API_BASE_URL)
