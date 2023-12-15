@@ -747,8 +747,20 @@ class TrainingTesting:
         
     
     def optimize_hyperparameters(self):
-        study_name = "FinRL-HP"
-        storage_url = "mysql+mysqlconnector://optuna_user:r00t4dm1n@localhost/optuna_example"
+        # Retrieve environment variables or set defaults
+        server_address = os.getenv('SERVER_ADDRESS', 'localhost')
+        server_port = os.getenv('SERVER_PORT', '3306')
+        study_name = os.getenv('STUDY_NAME', 'FinRL-HP')
+        study_mode = os.getenv('STUDY_MODE', 'server')
+        db_user = 'optuna_user'
+        db_password = 'r00t4dm1n'
+        
+        # Decide the storage URL based on study mode
+        if study_mode.lower() == "client":
+            storage_url = f"mysql+mysqlconnector://{db_user}:{db_password}@{server_address}:{server_port}/optuna"
+        else:
+            # Local MySQL server settings
+            storage_url = "mysql+mysqlconnector://optuna_user:r00t4dm1n@localhost/optuna_example"
 
         # Creating RDBStorage with heartbeat_interval and grace_period
         storage = optuna.storages.RDBStorage(
