@@ -23,7 +23,6 @@ RUN pip install \
     wrds swig \
     git+https://github.com/mikazlopes/FinRLOptimized
 
-ARG CACHEBUST=1
 # Clone your training-farm repository and install additional requirements
 RUN git clone -b adding-optuna https://github.com/mikazlopes/training-farm.git && \
     cd training-farm && \
@@ -37,6 +36,8 @@ WORKDIR /training-farm
 # Create a cache directory and copy local contents into it
 RUN mkdir cache
 COPY ./cache ./cache
+COPY hp-tuner.py hp-tuner.py
+COPY start_services.sh start_services.sh
 
 # Start MySQL and setup database
 RUN sed -i 's/bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
