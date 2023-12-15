@@ -662,7 +662,7 @@ class TrainingTesting:
     
     def objective(self, trial):
         # Suggest hyperparameters
-        learning_rate = trial.suggest_float('learning_rate', 1e-6, 4e-6, log=True)
+        learning_rate = trial.suggest_float('learning_rate', 2e-6, 4e-6, log=True)
         batch_size = trial.suggest_categorical('batch_size', [64, 128, 256, 512, 1024, 2048, 4096])
         gamma = trial.suggest_float('gamma', 0.9, 0.9999)
         net_dimension = trial.suggest_categorical('net_dimension', ['128,64', '256,128', '512,256', '1024,512', '128,64,32', '256,128,64', '512,256,128', '1024,512,256'])

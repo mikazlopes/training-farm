@@ -36,7 +36,7 @@ WORKDIR /training-farm
 
 # Create a cache directory and copy local contents into it
 RUN mkdir cache
-COPY configurations.py configurations.py
+COPY ./cache ./cache
 
 # Start MySQL and setup database
 RUN sed -i 's/bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
