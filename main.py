@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+import eventlet
+eventlet.monkey_patch()
 import os
 import sys
 import uuid
@@ -15,11 +19,8 @@ from flask_socketio import SocketIO, join_room
 from datetime import datetime, timedelta
 from collections import deque, OrderedDict
 from configurations import CONFIGURATIONS  # Importing the configuration file
-import eventlet
 from flask import Flask, render_template, jsonify
 
-
-eventlet.monkey_patch()
 
 logging.basicConfig(
         level=logging.DEBUG,
@@ -181,15 +182,14 @@ def dashboard():
     progress_percentage = 100 * manager.current_config_index / total_configurations if total_configurations else 0
     
     # Fetching top 5 from the leaderboard
-    top_5_leaderboard = list(manager.leaderboard.items())[:5]
+    sorted_leaderboard = sorted(manager.leaderboard.items(), key=lambda x: x[1]['return_value'], reverse=True)
 
     # Fetching active and completed processes data for the tables
     active_processes = get_active_processes()
     completed_processes = [{'uid': key[1], 'return_value': value['return_value']} for key, value in manager.leaderboard.items()]
 
-    enumerated_leaderboard = list(enumerate(top_5_leaderboard))
     return render_template('dashboard.html',
-                           leaderboard=enumerated_leaderboard,
+                           leaderboard=sorted_leaderboard[:5],
                            active_processes=active_processes,
                            completed_processes=completed_processes,
                            progress_percentage=progress_percentage)
@@ -241,7 +241,13 @@ def index():
 def on_connect():
     send_active_processes()   # Emit initial data
     send_completed_processes()   # Emit initial data
+    send_leaderboard() #Emit initial data
     logger.info("Client Connected - Server side")
+
+@sio.on('get_leaderboard')
+def send_leaderboard():
+    sorted_leaderboard = sorted(manager.leaderboard.items(), key=lambda x: x[1]['return_value'], reverse=True)
+    sio.emit('update_leaderboard', sorted_leaderboard[:5])
 
 @sio.on('join')
 def on_join(data):
@@ -291,7 +297,7 @@ def handle_message(data):
         logger.info(f'{uid}: {collected_values[uid]}')
         if len(collected_values[uid]) == 3:
             average = sum(collected_values[uid]) / 3
-            if average < -300:
+            if average < -300000:
                 logger.info(f"Average for {uid} too low, killing training")
                 # Remove the process from collected_values
                 if uid in collected_values:
@@ -332,8 +338,10 @@ def start_scripts(script, instances, manager):
             time.sleep(5)
 
 if __name__ == "__main__":
-    SCRIPT_PATH = 'trainer.py'
-    NUM_INSTANCES = 1
+    
+    with app.app_context():
+        SCRIPT_PATH = 'nd_trainer.py'
+        NUM_INSTANCES = 1
     
     configurations = generate_combinations()
     manager = ProcessManager(configurations=configurations)
