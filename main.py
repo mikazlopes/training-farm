@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+import trio
 import eventlet
 eventlet.monkey_patch()
 import os
@@ -340,7 +340,8 @@ def start_scripts(script, instances, manager):
 if __name__ == "__main__":
     
     with app.app_context():
-        SCRIPT_PATH = 'nd_trainer.py'
+        # SCRIPT_PATH = 'nd_trainer.py'
+        SCRIPT_PATH = 'trainer.py'
         NUM_INSTANCES = 1
     
     configurations = generate_combinations()

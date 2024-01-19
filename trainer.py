@@ -43,6 +43,7 @@ parser.add_argument('--steps', type=int, required=True, help='Number of steps')
 parser.add_argument('--learning_rate', type=float, required=True, help='Learning rate')
 parser.add_argument('--batch_size', type=int, required=True, help='Batch size')
 parser.add_argument('--net_dimensions', type=str, required=True, help='Comma-separated string of network dimensions')
+parser.add_argument('--gamma', type=float, required=True, help='Gamma')
 parser.add_argument('--uid', required=True, help='Unique Identifier for this run')
 parser.add_argument('--gpu_id', type=int, required=True, help='ID of GPU to be used')
 
@@ -54,6 +55,7 @@ period_years = args.period_years
 totalTimesteps = args.steps
 learning_rate = args.learning_rate
 batch_size = args.batch_size
+gamma = args.gamma
 netDimensions = ast.literal_eval(args.net_dimensions)  # Convert the string representation of list back to a list
 script_uid = args.uid
 gpuID = args.gpu_id
@@ -77,9 +79,9 @@ def subtract_years_from_date(date_str, period_years):
     return new_date_obj.strftime("%Y-%m-%d")
 
 TRAIN_START_DATE = subtract_years_from_date("2022-01-01", period_years=period_years)
-TRAIN_END_DATE = '2023-06-30'
-TEST_START_DATE = '2023-07-01'
-TEST_END_DATE = '2023-12-04'
+TRAIN_END_DATE = '2022-12-30'
+TEST_START_DATE = '2023-01-01'
+TEST_END_DATE = '2023-12-29'
 
 action_dim = len(ticker_list)
 state_dim = 1 + 2 + 3 * action_dim + len(INDICATORS) * action_dim
@@ -807,7 +809,7 @@ class TrainingTesting:
 
 env = StockTradingEnv
 
-ERL_PARAMS = {"learning_rate": learning_rate,"batch_size": batch_size,"gamma":  0.985,
+ERL_PARAMS = {"learning_rate": learning_rate,"batch_size": batch_size,"gamma":  gamma,
         "seed":312,"net_dimension":netDimensions, "target_step":totalTimesteps, "eval_gap":30,
         "eval_times":10} 
 env = StockTradingEnv
