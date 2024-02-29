@@ -12,7 +12,9 @@ Training farm allows to initiate multiple agent trainers leveraging multiple GPU
 - When the training rewards is not high enough the script will kill it and move to the next configuration combination ensuring time is not wasted on unseccessful runs.
 - Load balances training workloads between multiple Nvidia GPUs
 - Able to cache downloads and data after treatment to speed up training 
-- Keeps track of all processes via unique uids and saves the actor.pth (saved model) in folders which show the configuration parameters 
+- Keeps track of all processes via unique uids and saves the actor.pth (saved model) in folders which show the configuration parameters
+- Ability to use sentiment and Macroeconomic data as part of the training. You will need an AlphaVantage and EOD Historical API key to use this feature
+- Ability to track training performance using Tensorboard by starting Tensorboard and going to http://localhost:6006
 - Uses Websockets for the trainer scripts to communicate with main.py 
 
 
@@ -62,9 +64,13 @@ Now you should be ready to run the training. You can also use the Dockerfile to 
 
 There are a couple of configurable parameters in main.py and configurations.py that you will need to tweak before running.
 
+Find config_private.py, if you don't know where the python site-packages/finrl folder is, type "find / |grep config_private.py" and it should show the path. In that file configure the Alpaca API Keys and also the AlphaVantage and EOD Historical
+
 In main.py line 336 change NUM_INSTANCES = 3, to any number of instances your hardware supports running at the same time.
 
 In configurations.py feel free to change the parameters as needed, for more documentation about them please check out FINRL repo at github (https://github.com/AI4Finance-Foundation/FinRL)
+
+In trainer.py line 101, if you want to use the additional data points, change if_nd = False to True
 
 Bear in mind you need an Alpaca account to get the data (https://app.alpaca.markets) and test the agent afterwards
 
