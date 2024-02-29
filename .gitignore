@@ -1,11 +1,21 @@
-trainer_models/
+trained_models/
 processes.csv
 *.log
 .DS_Store
 *.pth
 cache/
+optuna/
 logs/*.log
+papertrading_testing/
+results/
+/tensorboard_log
+/Backtests
 .history/
+feature_importance.py
+feature_importances.png
+*.out
+trade_*
+train_sb3.py
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -177,3 +187,8 @@ trainer1/output.log
 trainer6/output.log
 configurations.py
 previous processes.csv
+twelvedata.py
+main_nd.py
+
+nd_trainer.py
+templates/dashboardnd.html

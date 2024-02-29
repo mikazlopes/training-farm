@@ -1,5 +1,5 @@
 from __future__ import annotations
-import trio
+
 import eventlet
 eventlet.monkey_patch()
 import os
@@ -20,7 +20,9 @@ from datetime import datetime, timedelta
 from collections import deque, OrderedDict
 from configurations import CONFIGURATIONS  # Importing the configuration file
 from flask import Flask, render_template, jsonify
+import pandas as pd
 
+pd.set_option('display.max_columns', None)
 
 logging.basicConfig(
         level=logging.DEBUG,
@@ -340,7 +342,6 @@ def start_scripts(script, instances, manager):
 if __name__ == "__main__":
     
     with app.app_context():
-        # SCRIPT_PATH = 'nd_trainer.py'
         SCRIPT_PATH = 'trainer.py'
         NUM_INSTANCES = 1
     
