@@ -8,13 +8,13 @@ ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn \
 # Install packages and clean up in one layer to reduce image size
 RUN apt-get update && apt-get install -y \
     wget git build-essential cmake libopenmpi-dev python3-dev zlib1g-dev \
-    libgl1-mesa-glx swig libopenblas-dev libsuitesparse-dev libgsl0-dev \
+    libgl1-mesa-glx swig libopenblas-dev libsuitesparse-dev libgsl0-dev htop \
     libfftw3-dev libglpk-dev libdsdp-dev python3.10 python3-pip nano \
     default-mysql-server default-libmysqlclient-dev \
     && rm -rf /var/lib/apt/lists/* \
     && ln -s /usr/bin/python3 /usr/bin/python
 
-
+ARG CACHEBUST=1
 # Install Optuna, Optuna-dashboard and additional requirements
 RUN pip install \
     optuna optuna-dashboard \
@@ -34,10 +34,12 @@ EXPOSE 8080 3306
 WORKDIR /training-farm
 
 # Create a cache directory and copy local contents into it
-RUN mkdir cache
-COPY ./cache ./cache
-COPY hp-tuner.py hp-tuner.py
+RUN mkdir cache \
+    mkdir logs
+
+COPY train_sb3.py train_sb3.py
 COPY start_services.sh start_services.sh
+COPY cache/ cache/
 
 # Start MySQL and setup database
 RUN sed -i 's/bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf

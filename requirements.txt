@@ -6,3 +6,7 @@ gym
 torch
 python-socketio
 eventlet
+optuna
+optuna-dashboard
+dask[complete]
+tensorboard

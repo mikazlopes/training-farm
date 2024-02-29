@@ -6,16 +6,18 @@ API_SECRET = "QpiszkVxetaOhYCPEhafggIGU6CaIV8gbmIXhaFu"
 API_BASE_URL = 'https://paper-api.alpaca.markets'
 data_url = 'wss://data.alpaca.markets'
 
-from finrl.config import INDICATORS
-from finrl.config_tickers import DRL_ALGO_TICKERS
-import optuna
+from finrl.config import INDICATORS, ECONOMY_SENTIMENT
+from finrl.config_tickers import MIGUEL_TICKER, DOW_30_TICKER, NAS_100_TICKER, BOT30_TICKER, ROUNDED_TICKER, TECH_TICKER, SINGLE_TICKER, DRL_ALGO_TICKERS
+from finrl.config import INDICATORS, DATA_SAVE_DIR, RESULTS_DIR, TENSORBOARD_LOG_DIR, TRAIN_END_DATE, TRAIN_START_DATE, TEST_END_DATE, TEST_START_DATE, TRAINED_MODEL_DIR, ALPACA_API_KEY, ALPACA_API_SECRET, ALPACA_API_BASE_URL, INTERM_RESULTS
 from optuna.trial import TrialState
 import multiprocessing
-from finrl.meta.env_stock_trading.env_stocktrading_np import StockTradingEnv
-from finrl.meta.env_stock_trading.env_stock_papertrading import AlpacaPaperTrading
+from finrl.meta.env_stock_trading.env_stocktrading_nd import StockTradingEnv
 from finrl.meta.data_processor import DataProcessor
 import logging
 import numpy as np
+import pandas as pd
+import dask.dataframe as dd
+from dask.distributed import Client
 import pickle
 import os
 import time
@@ -24,27 +26,41 @@ import torch
 import torch.nn as nn
 from torch import Tensor
 from torch.distributions.normal import Normal
-from finrl.meta.data_processor import DataProcessor
 import argparse
 from datetime import datetime
 import hashlib
+import requests
+import optuna
+from optuna import Trial
 
+def check_and_make_directories(directories: list[str]):
+    for directory in directories:
+        if not os.path.exists("./" + directory):
+            os.makedirs("./" + directory)
+
+CACHE_DIR = './cache'  # Specify your cache directory
+
+check_and_make_directories([DATA_SAVE_DIR, TRAINED_MODEL_DIR, TENSORBOARD_LOG_DIR, RESULTS_DIR, INTERM_RESULTS])
 
 
 parser = argparse.ArgumentParser(description='Trial Script')
     
 parser.add_argument('--period_years', type=int, required=True, help='Period in years')
-#parser.add_argument('--gpu_id', type=int, required=True, help='ID of GPU to be used')
+parser.add_argument('--gpu_id', type=int, required=False, help='ID of GPU to be used')
 parser.add_argument('--num_instances', type=int, required=True, help='Number of trials to run in parallel')
 
 args = parser.parse_args()
 
 # Access the arguments as attributes of args
-ticker_list = DRL_ALGO_TICKERS
+
 period_years = args.period_years
 num_instances = args.num_instances
-totalTimesteps = period_years * 100000
-gpuID = -1
+if args.gpu_id is None:
+    gpuID = -1
+else:
+    gpuID = args.gpu_id
+
+totalTimesteps = period_years * 200000
 
 id_name = 'hp-tuner'
 
@@ -67,13 +83,19 @@ def subtract_years_from_date(date_str, period_years):
     return new_date_obj.strftime("%Y-%m-%d")
 
 TRAIN_START_DATE = subtract_years_from_date("2022-01-01", period_years=period_years)
-TRAIN_END_DATE = '2023-06-30'
-TEST_START_DATE = '2023-07-01'
-TEST_END_DATE = '2023-12-13'
-
+TRAIN_END_DATE = '2022-12-31'
+TEST_START_DATE = '2023-01-01'
+TEST_END_DATE = '2023-12-31'
+if_nd = True
+initial_capital = 2e3
+ticker_list = BOT30_TICKER
 action_dim = len(ticker_list)
-state_dim = 1 + 2 + 3 * action_dim + len(INDICATORS) * action_dim
+if if_nd:
+    state_dim = 1 + 2 + 3 * action_dim + len(INDICATORS) * action_dim + len(ECONOMY_SENTIMENT) * action_dim + 1
+else:
+    state_dim = 1 + 2 + 3 * action_dim + len(INDICATORS) * action_dim + 1
 
+logging.info(f'Training State Dimension: {state_dim}')
 
 class ActorPPO(nn.Module):
     def __init__(self, dims: [int], state_dim: int, action_dim: int):
@@ -447,12 +469,17 @@ class Evaluator:
 
         used_time = time.time() - self.start_time
         self.recorder.append((self.total_step, used_time, avg_r))
+
+        money_value = avg_r/2**-11
+
+        avg_return = money_value/initial_capital
         
         logging.info(f"| {self.total_step:8.2e}  {used_time:8.0f}  "
               f"| {avg_r:8.2f}  {std_r:6.2f}  {avg_s:6.0f}  "
-              f"| {logging_tuple[0]:8.2f}  {logging_tuple[1]:8.2f}")
+              f"| {logging_tuple[0]:8.2f}  {logging_tuple[1]:8.2f}  "
+              f"| {money_value:8.2f}    {avg_return:8.2f}" )
         
-        trial.report(avg_r, self.total_step)
+        trial.report(avg_return, self.total_step)
 
         if trial.should_prune():
             raise optuna.exceptions.TrialPruned()
@@ -508,19 +535,39 @@ class DRLAgent:
             make a prediction in a test dataset and get results
     """
 
-    def __init__(self, env, price_array, tech_array, turbulence_array):
+    def __init__(self, env, price_array, tech_array, turbulence_array, sentiment_array=None, economy_array=None, price_movement_array=None, date_array=None, if_nd=False):
         self.env = env
         self.price_array = price_array
         self.tech_array = tech_array
         self.turbulence_array = turbulence_array
+        if if_nd:
+            self.sentiment_array = sentiment_array
+            self.economy_array = economy_array
+            self.price_movement_array = price_movement_array
+            self.date_array = date_array
+        self.if_nd = if_nd
 
     def get_model(self, model_name, model_kwargs):
-        env_config = {
-            "price_array": self.price_array,
-            "tech_array": self.tech_array,
-            "turbulence_array": self.turbulence_array,
-            "if_train": True,
-        }
+        if self.if_nd:
+            env_config = {
+                "price_array": self.price_array,
+                "tech_array": self.tech_array,
+                "turbulence_array": self.turbulence_array,
+                "sentiment_array": self.sentiment_array,
+                "economy_array": self.economy_array,
+                "price_movement_array": self.price_movement_array,
+                "date_array": self.date_array,
+                "if_nd": self.if_nd,
+                "if_train": True,
+            }
+        else:
+             env_config = {
+                "price_array": self.price_array,
+                "tech_array": self.tech_array,
+                "turbulence_array": self.turbulence_array,
+                "if_nd": self.if_nd,
+                "if_train": True,
+            }
         environment = self.env(config=env_config)
         env_args = {'config': env_config,
               'env_name': environment.env_name,
@@ -622,7 +669,7 @@ class TrainingTesting:
             n_trials=100,
             **kwargs,
         ):
-        self.CACHE_DIR = './cache'  # Specify your cache directory
+        self.CACHE_DIR = CACHE_DIR  # Specify your cache directory
         self.train_start_date = train_start_date
         self.train_end_date = train_end_date
         self.test_start_date = test_start_date
@@ -640,21 +687,23 @@ class TrainingTesting:
 
 
     def _generate_cache_key(self, tickers, start_date, end_date):
-        # Concatenate tickers with start and end dates
         combined_string = '_'.join(tickers) + f"_{start_date}_{end_date}"
-        # Create a hash of the combined string
         hashed_key = hashlib.md5(combined_string.encode()).hexdigest()
-        # Return the hash with a .pkl extension
         return f"{hashed_key}.pkl"
 
+    def _generate_sentiment_cache_key(self, tickers, start_date, end_date):
+        sentiment_key = '_'.join(tickers) + f"_sentiment_{start_date}_{end_date}"
+        hashed_key = hashlib.md5(sentiment_key.encode()).hexdigest()
+        return f"{hashed_key}_sentiment.pkl"
+
     def _save_to_cache(self, data, cache_key):
-        os.makedirs(self.CACHE_DIR, exist_ok=True)
-        cache_file = os.path.join(self.CACHE_DIR, cache_key)
+        os.makedirs(CACHE_DIR, exist_ok=True)
+        cache_file = os.path.join(CACHE_DIR, cache_key)
         with open(cache_file, 'wb') as file:
             pickle.dump(data, file)
 
     def _load_from_cache(self, cache_key):
-        cache_file = os.path.join(self.CACHE_DIR, cache_key)
+        cache_file = os.path.join(CACHE_DIR, cache_key)
         if os.path.exists(cache_file):
             with open(cache_file, 'rb') as file:
                 return pickle.load(file)
@@ -664,9 +713,9 @@ class TrainingTesting:
         # Suggest hyperparameters
         learning_rate = trial.suggest_float('learning_rate', 2e-6, 4e-6, log=True)
         batch_size = trial.suggest_categorical('batch_size', [64, 128, 256, 512, 1024, 2048, 4096])
-        gamma = trial.suggest_float('gamma', 0.9, 0.9999)
+        gamma = trial.suggest_float('gamma', 0.9, 0.999)
         net_dimension = trial.suggest_categorical('net_dimension', ['128,64', '256,128', '512,256', '1024,512', '128,64,32', '256,128,64', '512,256,128', '1024,512,256'])
-        break_step = trial.suggest_int('target_step', low=100000, high=1000000, step=20000)
+        break_step = trial.suggest_int('target_step', low=100000, high=2000000, step=20000)
         eval_gap = trial.suggest_int('eval_gap', low=1000, high=10000, step=1000)
         eval_times = trial.suggest_int('eval_times', low=2, high=16, step=1)
 
@@ -691,52 +740,296 @@ class TrainingTesting:
         if 'net_dimension' in model_kwargs:
             model_kwargs['net_dimension'] = tuple(map(int, model_kwargs['net_dimension'].split(',')))
 
-        cache_key = self._generate_cache_key(ticker_list, self.train_start_date, self.train_end_date)
-        data = self._load_from_cache(cache_key)
-        dp = DataProcessor(self.data_source,tech_indicator=self.technical_indicator_list, **self.kwargs)
-        
-        # If data is not in cache, download and treat it
-        if data is None:
-        # fetch data
-            # download data
-            logging.info("Not using cache")
-            data = dp.download_data(ticker_list, self.train_start_date, self.train_end_date, self.time_interval)
-            data = dp.clean_data(data)
-            data = dp.add_technical_indicator(data, self.technical_indicator_list)
-            if self.if_vix:
-                data = dp.add_vix(data)
-            else:
-                data = dp.add_turbulence(data)
+        # Check if processed data is in cache
+        dp = DataProcessor(self.data_source, tech_indicator=self.technical_indicator_list, **self.kwargs)
+        processed_cache_key = self._generate_sentiment_cache_key(self.ticker_list, self.train_start_date, self.train_end_date)
+        processed_data = self._load_from_cache(processed_cache_key)
+        # Check if raw data is in cache
+        raw_cache_key = self._generate_cache_key(self.ticker_list, self.train_start_date, self.train_end_date)
+        raw_data = self._load_from_cache(raw_cache_key)
 
-            # Save the treated data to cache for future use
-            self._save_to_cache(data, cache_key)
+        if processed_data is None:           
+
+            if raw_data is None:
+                logging.info("Not using cache for raw data")
+                data = dp.download_data(self.ticker_list, self.train_start_date, self.train_end_date, self.time_interval)
+                print(data.head())
+                data = dp.clean_data(data)
+                print(data.head())
+                data = dp.add_technical_indicator(data, self.technical_indicator_list)
+                print(data.head())
+                if self.if_vix:
+                    data = dp.add_vix(data)
+                else:
+                    data = dp.add_turbulence(data)
+
+                raw_data = data
+                self._save_to_cache(raw_data, raw_cache_key)
+
+            else:
+
+                logging.info('Using cache for raw data')
+
+            if if_nd:
+                
+                logging.info('Adding Returns and Directions')
+
+            
+                # Function to calculate increase/decrease and returns within each ticker group
+                def calculate_metrics(group):
+                    group['returns'] = group['close'].pct_change()
+                    group['increase_decrease'] = np.where(group['returns'] > 0, 1, 0)
+                    return group
+
+                # Apply the function to each group without additional sorting
+                grouped_data = raw_data.groupby('tic', group_keys=False).apply(calculate_metrics)
+
+                # Fill NaN values in the entire DataFrame
+                grouped_data = grouped_data.fillna(0)
+
+                raw_data = grouped_data
+
+                # Assuming 'raw_data' is your DataFrame and it has a column 'timestamp'
+                # Ensure that your timestamp column is in pandas datetime format
+                raw_data['timestamp'] = pd.to_datetime(raw_data['timestamp'])
+
+                # Extract date-time features for all rows
+                raw_data['year'] = raw_data['timestamp'].dt.year
+                raw_data['month'] = raw_data['timestamp'].dt.month
+                raw_data['day'] = raw_data['timestamp'].dt.day
+                raw_data['weekday'] = raw_data['timestamp'].dt.weekday
+                raw_data['hour'] = raw_data['timestamp'].dt.hour
+                raw_data['minute'] = raw_data['timestamp'].dt.minute
+
+                raw_data['hour_sin'] = np.sin((2 * np.pi * raw_data['hour']) / 24.0)  # Adjusted to 24
+                raw_data['hour_cos'] = np.cos(2 * np.pi * raw_data['hour'] / 24.0)  # Adjusted to 24
+                raw_data['day_sin'] = np.sin((2 * np.pi * raw_data['day']) / 31.0)  # 31 for days in a month
+                raw_data['day_cos'] = np.cos(2 * np.pi * raw_data['day'] / 31.0)  # 31 for days in a month
+                raw_data['month_sin'] = np.sin((2 * np.pi * raw_data['month']) / 12.0)  # 12 for months in a year
+                raw_data['month_cos'] = np.cos(2 * np.pi * raw_data['month'] / 12.0)  # 12 for months in a year
+                raw_data['minute_sin'] = np.sin((2 * np.pi * raw_data['minute']) / 60.0)  # Adjusted to 60
+                raw_data['minute_cos'] = np.cos(2 * np.pi * raw_data['minute'] / 60.0)  # Adjusted to 60
+                
+                def fetch_alpha_vantage_data(url):
+                    response = requests.get(url)
+                    if response.status_code == 200:
+                        return response.json()
+                    else:
+                        return None
+                        
+                logging.info('Initalize data partition')
+
+                # Initialize Dask Client
+                client = Client(n_workers=4, threads_per_worker=8)
+
+                # Determine the number of partitions
+                npartitions = len(raw_data) // (5 * 10**5)  # For instance, one partition per 5 million rows
+
+                # Convert pandas DataFrame to Dask DataFrame
+                dask_data = dd.from_pandas(raw_data, npartitions=npartitions)
+
+                def process_economic_indicator_partition(partition, av_data, column_name, frequency, start_date, end_date):
+                    start_date = pd.to_datetime(start_date)
+                    end_date = pd.to_datetime(end_date)
+                    for record in av_data:
+                        record_date = pd.to_datetime(record['date'])
+                        if start_date <= record_date <= end_date:
+                            value = float(record['value'])
+                            if frequency == 'annual':
+                                mask = (partition['year'] == record_date.year) | (partition['year'] == record_date.year + 1)
+                            elif frequency == 'monthly':
+                                mask = (partition['year'] == record_date.year) & (partition['month'] == record_date.month)
+                            elif frequency == 'daily':
+                                mask = (partition['year'] == record_date.year) & (partition['month'] == record_date.month) & (partition['day'] == record_date.day)
+                            
+                            # Update values where mask is True
+                            partition.loc[mask, column_name] = value
+
+                    # Forward fill missing values
+                    partition[column_name] = partition[column_name].ffill()
+                    return partition
+
+
+
+                def integrate_alpha_vantage_data(dask_data, av_data, column_name, frequency, start_date, end_date):
+                    if column_name not in dask_data.columns:
+                        dask_data[column_name] = 0.0
+
+                    processed_data = dask_data.map_partitions(process_economic_indicator_partition, av_data, column_name, frequency, start_date, end_date)
+                    return processed_data
+
+                logging.info('Adding Economy Indicators')
+                # API Key for Alpha Vantage
+                av_api_key = "YX3B131O5GGVYZ41"
+                logging.info("Adding CPI")
+                # Consumer Price Index
+                cpi_url = f"https://www.alphavantage.co/query?function=CPI&interval=monthly&apikey={av_api_key}"
+                cpi_data = fetch_alpha_vantage_data(cpi_url)
+                if cpi_data:
+                    dask_data = integrate_alpha_vantage_data(dask_data, cpi_data['data'], 'cpi', cpi_data['interval'], self.train_start_date, self.train_end_date)
+                logging.info("Adding Inflation Rate")
+                # Inflation Rate
+                inflation_url = f"https://www.alphavantage.co/query?function=INFLATION&apikey={av_api_key}"
+                inflation_data = fetch_alpha_vantage_data(inflation_url)
+                if inflation_data:
+                    dask_data = integrate_alpha_vantage_data(dask_data, inflation_data['data'], 'inflation', inflation_data['interval'], self.train_start_date, self.train_end_date)
+                logging.info("Adding Interest Rates")
+                # Effective Federal Funds Rate
+                fed_rate_url = f"https://www.alphavantage.co/query?function=FEDERAL_FUNDS_RATE&interval=daily&apikey={av_api_key}"
+                fed_rate_data = fetch_alpha_vantage_data(fed_rate_url)
+                if fed_rate_data:
+                    dask_data = integrate_alpha_vantage_data(dask_data, fed_rate_data['data'], 'federal_funds_rate', fed_rate_data['interval'], self.train_start_date, self.train_end_date)
+                logging.info("Unemployment Rate")
+                # Unemployment Rate
+                unemployment_url = f"https://alphavantage.co/query?function=UNEMPLOYMENT&apikey={av_api_key}"
+                unemployment_data = fetch_alpha_vantage_data(unemployment_url)
+                if unemployment_data:
+                    dask_data = integrate_alpha_vantage_data(dask_data, unemployment_data['data'], 'unemployment_rate', unemployment_data['interval'], self.train_start_date, self.train_end_date)
+                
+
+                def fetch_sentiment_data(tickers, start_date, end_date, api_token):
+                    # Join the tickers into a comma-separated string
+                    formatted_tickers = ','.join(tickers)
+                    url = f'https://eodhistoricaldata.com/api/sentiments?s={formatted_tickers}&from={start_date}&to={end_date}&api_token={api_token}&fmt=json'
+                    response = requests.get(url)
+                    sentiment_data = response.json()
+                    return sentiment_data
+
+                def process_partition(partition, ticker_sentiments):
+                    for ticker, records in ticker_sentiments.items():
+                        formatted_ticker = ticker.split('.')[0]  # Strip off '.US'
+                        for record in records:
+                            record_date = pd.to_datetime(record['date'])
+                            normalized_sentiment = record['count'] * record['normalized']
+                            mask = (partition['tic'] == formatted_ticker) & \
+                                (partition['year'] == record_date.year) & \
+                                (partition['month'] == record_date.month) & \
+                                (partition['day'] == record_date.day)
+                            partition.loc[mask, 'sentiment'] = normalized_sentiment
+                            # print(f"Adding Sentiment Score : {normalized_sentiment} to Ticker : {formatted_ticker} at {record_date.year}-{record_date.month}-{record_date.day}")
+                    return partition
+
+                def integrate_sentiment_data(raw_data, sentiment_data, start_date, end_date):
+                    start_date = pd.to_datetime(start_date)
+                    end_date = pd.to_datetime(end_date)
+                    ticker_sentiments = {ticker.split('.')[0]: [record for record in records if start_date <= pd.to_datetime(record['date']) <= end_date]
+                                        for ticker, records in sentiment_data.items()}
+
+                    if 'sentiment' not in raw_data.columns:
+                        raw_data['sentiment'] = 0.0
+
+                    processed_data = raw_data.map_partitions(process_partition, ticker_sentiments)
+                    processed_data['sentiment'] = processed_data['sentiment'].fillna(0)
+                    return processed_data
+
+                # Example usage
+                eod_api_key = '6599bce98e23f7.19353282'
+                logging.info('Downloading Sentiment data')
+                sentiment_data = fetch_sentiment_data(self.ticker_list, self.train_start_date, self.train_end_date, eod_api_key)
+
+                # Process data using Dask with multi-threaded scheduler
+                logging.info('Processing Sentiment data')
+                processed_dask_data = integrate_sentiment_data(dask_data, sentiment_data, self.train_start_date, self.train_end_date)
+
+                # Convert Dask DataFrame back to Pandas DataFrame in chunks
+                #processed_data = pd.concat([part.compute() for part in processed_dask_data.to_delayed()])
+
+                #processed_data = processed_dask_data.compute()
+                logging.info('Convert Dask DataFrame back to Pandas DataFrame in chunks')
+                # Convert Dask DataFrame back to Pandas DataFrame in chunks
+                chunk_size = 5 * 10**6  # Adjust this based on your memory capacity
+                import gc
+                processed_data = pd.DataFrame()
+
+                for chunk in processed_dask_data.to_delayed():
+                    temp_df = chunk.compute()
+                    processed_data = pd.concat([processed_data, temp_df])
+
+                    # Optional: Clear memory
+                    del temp_df
+                    gc.collect()
+
+                logging.info('Closing Dask Connections')
+                client.close()
+
+                # Replace None with zero in the sentiment column
+                #processed_data['sentiment'].fillna(0, inplace=True)
+
+                logging.info('Saving processed data cache')
+                self._save_to_cache(processed_data, processed_cache_key)
 
         else:
-            logging.info(f'{id_name} using cache')
+
+            logging.info('Using cached processed data')
         
-        price_array, tech_array, turbulence_array = dp.df_to_array(data, self.if_vix)
-        env_config = {
-            "price_array": price_array,
-            "tech_array": tech_array,
-            "turbulence_array": turbulence_array,
-            "if_train": True,
-        }
+        logging.info('Configuring Environment')
+        
+        if if_nd:
+
+            data = processed_data
+
+        else:
+            
+            data = raw_data
+
+        if if_nd:
+
+            price_array, tech_array, turbulence_array, sentiment_array, economy_array, price_movement_array, date_array = dp.df_to_array(data, self.if_vix, if_nd)
+
+        else:
+
+            price_array, tech_array, turbulence_array = dp.df_to_array(data, self.if_vix, if_nd)
+
+        if if_nd:
+            env_config = {
+                "price_array": price_array,
+                "tech_array": tech_array,
+                "turbulence_array": turbulence_array,
+                "sentiment_array": sentiment_array,
+                "economy_array": economy_array,
+                "price_movement_array": price_movement_array,
+                "date_array": date_array,
+                "if_nd": if_nd,
+                "if_train": True,
+            }
+        else:
+            env_config = {
+                "price_array": price_array,
+                "tech_array": tech_array,
+                "turbulence_array": turbulence_array,
+                "if_nd": if_nd,
+                "if_train": True,
+            } 
 
         env_instance = env(config=env_config)
-
         # read parameters
         cwd = './optuna/trial' + str(trial.number) + '-' + str(model_kwargs.get("net_dimension"))
       
-        env_instance = env(config=env_config)
         DRLAgent_erl = DRLAgent
         # Use model_kwargs directly
-        agent = DRLAgent_erl(
-            env=env,
-            price_array=price_array,
-            tech_array=tech_array,
-            turbulence_array=turbulence_array,
-        )
+        if if_nd:
+
+            agent = DRLAgent_erl(
+                env=env,
+                price_array=price_array,
+                tech_array=tech_array,
+                turbulence_array=turbulence_array,
+                sentiment_array=sentiment_array,
+                economy_array=economy_array,
+                price_movement_array=price_movement_array,
+                date_array=date_array,
+                if_nd=if_nd
+            )
+        else:
+            agent = DRLAgent_erl(
+                env=env,
+                price_array=price_array,
+                tech_array=tech_array,
+                turbulence_array=turbulence_array,
+                if_nd=if_nd
+            )
         model = agent.get_model(self.model_name, model_kwargs=model_kwargs)
+        logging.info("Training Started")
         trained_model_reward = agent.train_model(
             model=model, cwd=cwd, trial=trial, total_timesteps=model_kwargs.get("target_step", 1e6)
         )
@@ -750,7 +1043,7 @@ class TrainingTesting:
         # Retrieve environment variables or set defaults
         server_address = os.getenv('SERVER_ADDRESS', 'localhost')
         server_port = os.getenv('SERVER_PORT', '3306')
-        study_name = os.getenv('STUDY_NAME', 'FinRL-HP')
+        study_name = os.getenv('STUDY_NAME', 'FinRL-ERL')
         study_mode = os.getenv('STUDY_MODE', 'server')
         db_user = 'optuna_user'
         db_password = 'r00t4dm1n'
@@ -769,14 +1062,16 @@ class TrainingTesting:
             grace_period=60 * 60 * 6  # 6 hours grace period for zombie trials
         )
 
+        pruner = optuna.pruners.HyperbandPruner(min_resource=100000, reduction_factor=3)
+
         study = optuna.create_study(
             load_if_exists=True,
             study_name=study_name,
             storage=storage,
             direction='maximize',
-            pruner=optuna.pruners.MedianPruner()
+            pruner=pruner
         )
-        study.optimize(self.objective, n_trials=self.n_trials)
+        study.optimize(self.objective, n_trials=self.n_trials, catch=(ValueError,))
 
         # Output the optimization results
         trial = study.best_trial
@@ -792,40 +1087,268 @@ class TrainingTesting:
     **kwargs,
     ):
 
-         # First, try to load the data from cache
-        cache_key = self._generate_cache_key(self.ticker_list, self.test_start_date, self.test_end_date)
-        data = self._load_from_cache(cache_key)
+         # Check if processed data is in cache
         dp = DataProcessor(self.data_source, tech_indicator=self.technical_indicator_list, **self.kwargs)
-        
-        # If data is not in cache, download and treat it
-        if data is None:
-        # fetch data
-            # download data
-            logging.info("Not using cache")
-            data = dp.download_data(self.ticker_list, self.test_start_date, self.test_end_date, self.time_interval)
-            data = dp.clean_data(data)
-            data = dp.add_technical_indicator(data, self.technical_indicator_list)
-            if self.if_vix:
-                data = dp.add_vix(data)
+        processed_cache_key = self._generate_sentiment_cache_key(self.ticker_list, self.test_start_date, self.test_end_date)
+        processed_data = self._load_from_cache(processed_cache_key)
+        # Check if raw data is in cache
+        raw_cache_key = self._generate_cache_key(self.ticker_list, self.test_start_date, self.test_end_date)
+        raw_data = self._load_from_cache(raw_cache_key)
+
+        if processed_data is None:           
+
+            if raw_data is None:
+                logging.info("Not using cache for raw data")
+                data = dp.download_data(self.ticker_list, self.test_start_date, self.test_end_date, self.time_interval)
+                print(data.head())
+                data = dp.clean_data(data)
+                print(data.head())
+                data = dp.add_technical_indicator(data, self.technical_indicator_list)
+                print(data.head())
+                if self.if_vix:
+                    data = dp.add_vix(data)
+                else:
+                    data = dp.add_turbulence(data)
+
+                raw_data = data
+                self._save_to_cache(raw_data, raw_cache_key)
+
             else:
-                data = dp.add_turbulence(data)
 
-            # Save the treated data to cache for future use
-            self._save_to_cache(data, cache_key)
+                logging.info('Using cache for raw data')
+
+            if if_nd:
+                
+                logging.info('Adding Returns and Directions')
+
+            
+                # Function to calculate increase/decrease and returns within each ticker group
+                def calculate_metrics(group):
+                    group['returns'] = group['close'].pct_change()
+                    group['increase_decrease'] = np.where(group['returns'] > 0, 1, 0)
+                    return group
+
+                # Apply the function to each group without additional sorting
+                grouped_data = raw_data.groupby('tic', group_keys=False).apply(calculate_metrics)
+
+                # Fill NaN values in the entire DataFrame
+                grouped_data = grouped_data.fillna(0)
+
+                raw_data = grouped_data
+
+                # Assuming 'raw_data' is your DataFrame and it has a column 'timestamp'
+                # Ensure that your timestamp column is in pandas datetime format
+                raw_data['timestamp'] = pd.to_datetime(raw_data['timestamp'])
+
+                # Extract date-time features for all rows
+                raw_data['year'] = raw_data['timestamp'].dt.year
+                raw_data['month'] = raw_data['timestamp'].dt.month
+                raw_data['day'] = raw_data['timestamp'].dt.day
+                raw_data['weekday'] = raw_data['timestamp'].dt.weekday
+                raw_data['hour'] = raw_data['timestamp'].dt.hour
+                raw_data['minute'] = raw_data['timestamp'].dt.minute
+
+                raw_data['hour_sin'] = np.sin((2 * np.pi * raw_data['hour']) / 24.0)  # Adjusted to 24
+                raw_data['hour_cos'] = np.cos(2 * np.pi * raw_data['hour'] / 24.0)  # Adjusted to 24
+                raw_data['day_sin'] = np.sin((2 * np.pi * raw_data['day']) / 31.0)  # 31 for days in a month
+                raw_data['day_cos'] = np.cos(2 * np.pi * raw_data['day'] / 31.0)  # 31 for days in a month
+                raw_data['month_sin'] = np.sin((2 * np.pi * raw_data['month']) / 12.0)  # 12 for months in a year
+                raw_data['month_cos'] = np.cos(2 * np.pi * raw_data['month'] / 12.0)  # 12 for months in a year
+                raw_data['minute_sin'] = np.sin((2 * np.pi * raw_data['minute']) / 60.0)  # Adjusted to 60
+                raw_data['minute_cos'] = np.cos(2 * np.pi * raw_data['minute'] / 60.0)  # Adjusted to 60
+                
+                def fetch_alpha_vantage_data(url):
+                    response = requests.get(url)
+                    if response.status_code == 200:
+                        return response.json()
+                    else:
+                        return None
+                        
+                logging.info('Initalize data partition')
+
+                # Initialize Dask Client
+                client = Client(n_workers=4, threads_per_worker=8)
+
+                # Determine the number of partitions
+                npartitions = len(raw_data) // (5 * 10**5)  # For instance, one partition per 5 million rows
+
+                # Convert pandas DataFrame to Dask DataFrame
+                dask_data = dd.from_pandas(raw_data, npartitions=npartitions)
+
+                def process_economic_indicator_partition(partition, av_data, column_name, frequency, start_date, end_date):
+                    start_date = pd.to_datetime(start_date)
+                    end_date = pd.to_datetime(end_date)
+                    for record in av_data:
+                        record_date = pd.to_datetime(record['date'])
+                        if start_date <= record_date <= end_date:
+                            value = float(record['value'])
+                            if frequency == 'annual':
+                                mask = (partition['year'] == record_date.year) | (partition['year'] == record_date.year + 1)
+                            elif frequency == 'monthly':
+                                mask = (partition['year'] == record_date.year) & (partition['month'] == record_date.month)
+                            elif frequency == 'daily':
+                                mask = (partition['year'] == record_date.year) & (partition['month'] == record_date.month) & (partition['day'] == record_date.day)
+                            
+                            # Update values where mask is True
+                            partition.loc[mask, column_name] = value
+
+                    # Forward fill missing values
+                    partition[column_name] = partition[column_name].ffill()
+                    return partition
+
+
+
+                def integrate_alpha_vantage_data(dask_data, av_data, column_name, frequency, start_date, end_date):
+                    if column_name not in dask_data.columns:
+                        dask_data[column_name] = 0.0
+
+                    processed_data = dask_data.map_partitions(process_economic_indicator_partition, av_data, column_name, frequency, start_date, end_date)
+                    return processed_data
+
+                logging.info('Adding Economy Indicators')
+                # API Key for Alpha Vantage
+                av_api_key = "YX3B131O5GGVYZ41"
+                logging.info("Adding CPI")
+                # Consumer Price Index
+                cpi_url = f"https://www.alphavantage.co/query?function=CPI&interval=monthly&apikey={av_api_key}"
+                cpi_data = fetch_alpha_vantage_data(cpi_url)
+                if cpi_data:
+                    dask_data = integrate_alpha_vantage_data(dask_data, cpi_data['data'], 'cpi', cpi_data['interval'], self.test_start_date, self.test_end_date)
+                logging.info("Adding Inflation Rate")
+                # Inflation Rate
+                inflation_url = f"https://www.alphavantage.co/query?function=INFLATION&apikey={av_api_key}"
+                inflation_data = fetch_alpha_vantage_data(inflation_url)
+                if inflation_data:
+                    dask_data = integrate_alpha_vantage_data(dask_data, inflation_data['data'], 'inflation', inflation_data['interval'], self.test_start_date, self.test_end_date)
+                logging.info("Adding Interest Rates")
+                # Effective Federal Funds Rate
+                fed_rate_url = f"https://www.alphavantage.co/query?function=FEDERAL_FUNDS_RATE&interval=daily&apikey={av_api_key}"
+                fed_rate_data = fetch_alpha_vantage_data(fed_rate_url)
+                if fed_rate_data:
+                    dask_data = integrate_alpha_vantage_data(dask_data, fed_rate_data['data'], 'federal_funds_rate', fed_rate_data['interval'], self.test_start_date, self.test_end_date)
+                logging.info("Unemployment Rate")
+                # Unemployment Rate
+                unemployment_url = f"https://alphavantage.co/query?function=UNEMPLOYMENT&apikey={av_api_key}"
+                unemployment_data = fetch_alpha_vantage_data(unemployment_url)
+                if unemployment_data:
+                    dask_data = integrate_alpha_vantage_data(dask_data, unemployment_data['data'], 'unemployment_rate', unemployment_data['interval'], self.test_start_date, self.test_end_date)
+                
+
+                def fetch_sentiment_data(tickers, start_date, end_date, api_token):
+                    # Join the tickers into a comma-separated string
+                    formatted_tickers = ','.join(tickers)
+                    url = f'https://eodhistoricaldata.com/api/sentiments?s={formatted_tickers}&from={start_date}&to={end_date}&api_token={api_token}&fmt=json'
+                    response = requests.get(url)
+                    sentiment_data = response.json()
+                    return sentiment_data
+
+                def process_partition(partition, ticker_sentiments):
+                    for ticker, records in ticker_sentiments.items():
+                        formatted_ticker = ticker.split('.')[0]  # Strip off '.US'
+                        for record in records:
+                            record_date = pd.to_datetime(record['date'])
+                            normalized_sentiment = record['count'] * record['normalized']
+                            mask = (partition['tic'] == formatted_ticker) & \
+                                (partition['year'] == record_date.year) & \
+                                (partition['month'] == record_date.month) & \
+                                (partition['day'] == record_date.day)
+                            partition.loc[mask, 'sentiment'] = normalized_sentiment
+                            # print(f"Adding Sentiment Score : {normalized_sentiment} to Ticker : {formatted_ticker} at {record_date.year}-{record_date.month}-{record_date.day}")
+                    return partition
+
+                def integrate_sentiment_data(raw_data, sentiment_data, start_date, end_date):
+                    start_date = pd.to_datetime(start_date)
+                    end_date = pd.to_datetime(end_date)
+                    ticker_sentiments = {ticker.split('.')[0]: [record for record in records if start_date <= pd.to_datetime(record['date']) <= end_date]
+                                        for ticker, records in sentiment_data.items()}
+
+                    if 'sentiment' not in raw_data.columns:
+                        raw_data['sentiment'] = 0.0
+
+                    processed_data = raw_data.map_partitions(process_partition, ticker_sentiments)
+                    processed_data['sentiment'] = processed_data['sentiment'].fillna(0)
+                    return processed_data
+
+                # Example usage
+                eod_api_key = '6599bce98e23f7.19353282'
+                logging.info('Downloading Sentiment data')
+                sentiment_data = fetch_sentiment_data(self.ticker_list, self.test_start_date, self.test_end_date, eod_api_key)
+
+                # Process data using Dask with multi-threaded scheduler
+                logging.info('Processing Sentiment data')
+                processed_dask_data = integrate_sentiment_data(dask_data, sentiment_data, self.test_start_date, self.test_end_date)
+
+                # Convert Dask DataFrame back to Pandas DataFrame in chunks
+                #processed_data = pd.concat([part.compute() for part in processed_dask_data.to_delayed()])
+
+                #processed_data = processed_dask_data.compute()
+                logging.info('Convert Dask DataFrame back to Pandas DataFrame in chunks')
+                # Convert Dask DataFrame back to Pandas DataFrame in chunks
+                chunk_size = 5 * 10**6  # Adjust this based on your memory capacity
+                import gc
+                processed_data = pd.DataFrame()
+
+                for chunk in processed_dask_data.to_delayed():
+                    temp_df = chunk.compute()
+                    processed_data = pd.concat([processed_data, temp_df])
+
+                    # Optional: Clear memory
+                    del temp_df
+                    gc.collect()
+
+                logging.info('Closing Dask Connections')
+                client.close()
+
+                # Replace None with zero in the sentiment column
+                #processed_data['sentiment'].fillna(0, inplace=True)
+
+                logging.info('Saving processed data cache')
+                self._save_to_cache(processed_data, processed_cache_key)
+
+        else:
+
+            logging.info('Using cached processed data')
         
-        price_array, tech_array, turbulence_array = dp.df_to_array(data, self.if_vix)
+        logging.info('Configuring Environment')
+        
+        if if_nd:
 
-        # Save the treated data to cache for future use
-        self._save_to_cache(data, cache_key)
+            data = processed_data
 
-        env_config = {
-            "price_array": price_array,
-            "tech_array": tech_array,
-            "turbulence_array": turbulence_array,
-            "if_train": False,
-        }
+        else:
+            
+            data = raw_data
+
+        if if_nd:
+
+            price_array, tech_array, turbulence_array, sentiment_array, economy_array, price_movement_array, date_array = dp.df_to_array(data, self.if_vix, if_nd)
+
+        else:
+
+            price_array, tech_array, turbulence_array = dp.df_to_array(data, self.if_vix, if_nd)
+
+        if if_nd:
+            env_config = {
+                "price_array": price_array,
+                "tech_array": tech_array,
+                "turbulence_array": turbulence_array,
+                "sentiment_array": sentiment_array,
+                "economy_array": economy_array,
+                "price_movement_array": price_movement_array,
+                "date_array": date_array,
+                "if_nd": if_nd,
+                "if_train": False,
+            }
+        else:
+            env_config = {
+                "price_array": price_array,
+                "tech_array": tech_array,
+                "turbulence_array": turbulence_array,
+                "if_nd": if_nd,
+                "if_train": False,
+            } 
+
         env_instance = env(config=env_config)
-
         # load elegantrl needs state dim, action dim and net dim
         net_dimension = kwargs.get("net_dimension", 2**7)
 
@@ -853,7 +1376,7 @@ def run_optimization():
         env=env,
         model_name='ppo',
         if_vix=True,
-        n_trials=500, 
+        n_trials=1000, 
         API_KEY = API_KEY, 
         API_SECRET = API_SECRET, 
         API_BASE_URL = API_BASE_URL)
