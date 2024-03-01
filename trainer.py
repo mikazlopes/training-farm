@@ -735,10 +735,9 @@ class DRLAgent:
         logging.info(f"Detailed action log saved to results/{script_uid}_detailed_actions.csv")
 
         # Plotting
-        fig, axs = plt.subplots(3, 1, figsize=(15, 20), sharex=True)
+        fig, axs = plt.subplots(4, 1, figsize=(15, 25), sharex=True)  # Increase the subplot count to 4
 
         # Plot 1: Executed Trading Actions
-        # Instead of using groupby, we directly plot the quantity for each stock index.
         for stock_index in sorted(action_df['stock_index'].unique()):
             df = action_df[action_df['stock_index'] == stock_index]
             axs[0].plot(df['day'], df['quantity'], label=f'Stock {stock_index}')
@@ -747,7 +746,6 @@ class DRLAgent:
         axs[0].legend()
 
         # Plot 2: Stock Holdings
-        # Plot the stocks held for each stock index directly.
         for stock_index in sorted(action_df['stock_index'].unique()):
             df = action_df[action_df['stock_index'] == stock_index]
             axs[1].plot(df['day'], df['stocks_held'], label=f'Stock {stock_index}')
@@ -756,13 +754,19 @@ class DRLAgent:
         axs[1].legend()
 
         # Plot 3: Cash Amount and Portfolio Value
-        # These should be plotted over each step, not grouped by day.
         axs[2].plot(action_df['day'], action_df['cash_amount'], label='Cash Amount', color='blue')
         axs[2].plot(action_df['day'], action_df['portfolio_value'], label='Portfolio Value', color='green')
         axs[2].set_title('Cash and Portfolio Value Over Time')
         axs[2].set_xlabel('Day')
         axs[2].set_ylabel('Value')
         axs[2].legend()
+
+        # Plot 4: Correlation of Reward Value and Profit/Loss
+        axs[3].scatter(action_df['Reward Value'], action_df['Profit/Loss'], alpha=0.5)
+        axs[3].set_title('Correlation between Reward Value and Profit/Loss')
+        axs[3].set_xlabel('Reward Value')
+        axs[3].set_ylabel('Profit/Loss')
+        axs[3].grid(True)
 
         plt.tight_layout()
         plt.savefig(f"{RESULTS_DIR}/{script_uid}_detailed_actions_plot.png")
