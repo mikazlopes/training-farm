@@ -762,7 +762,7 @@ class DRLAgent:
         axs[2].legend()
 
         # Plot 4: Correlation of Reward Value and Profit/Loss
-        axs[3].scatter(action_df['Reward Value'], action_df['Profit/Loss'], alpha=0.5)
+        axs[3].scatter(action_df['reward_value'], action_df['profit_loss'], alpha=0.5)
         axs[3].set_title('Correlation between Reward Value and Profit/Loss')
         axs[3].set_xlabel('Reward Value')
         axs[3].set_ylabel('Profit/Loss')
