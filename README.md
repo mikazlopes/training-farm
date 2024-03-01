@@ -80,6 +80,8 @@ Depending on how many different combinations of configurations you have, it can 
 
 You can check the live performance by opening http://localhost:5678/dashboard, it will show how far is the training process in the top progress bar, top results and the ongoing active processes and the last rewards they got. You can stop individual processes or start new ones.
 
+Please ignore the hp_tuner.py and start_services.py. These are my initial work doing the hyperparameter tuning via Optuna. 
+
 ## Docker
 
 You can also use the Dockerfile to build an image with everything pre-installed. The image is built for NVIDIA CUDA enabled Docker servers. 
