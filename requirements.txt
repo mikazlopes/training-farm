@@ -9,4 +9,5 @@ eventlet
 optuna
 optuna-dashboard
 dask[complete]
+dask-expr
 tensorboard

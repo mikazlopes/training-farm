@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from finrl.config import INDICATORS, SENTIMENT, ECONOMY, RETURNS, PRICE_MOVEMENT, VOLUME, DATE 
-from finrl.config import DATA_SAVE_DIR, RESULTS_DIR, TENSORBOARD_LOG_DIR, TRAIN_END_DATE, TRAIN_START_DATE, TEST_END_DATE, TEST_START_DATE, TRAINED_MODEL_DIR, INTERM_RESULTS
+from finrl.config import DATA_SAVE_DIR, RESULTS_DIR, TENSORBOARD_LOG_DIR, TRAIN_END_DATE, TRAIN_START_DATE, TEST_END_DATE, TEST_START_DATE, TRAINED_MODEL_DIR, INTERM_RESULTS, LOGS
 from finrl.config_private import ALPACA_API_BASE_URL, ALPACA_API_KEY, ALPACA_API_SECRET, ALPHA_VANTAGE_KEY, EOD_KEY
 
 from finrl.meta.env_stock_trading.env_stocktrading_nd import StockTradingEnv
@@ -78,7 +78,7 @@ def check_and_make_directories(directories: list[str]):
 
 CACHE_DIR = './cache'  # Specify your cache directory
 
-check_and_make_directories([DATA_SAVE_DIR, TRAINED_MODEL_DIR, TENSORBOARD_LOG_DIR, RESULTS_DIR, INTERM_RESULTS])
+check_and_make_directories([DATA_SAVE_DIR, TRAINED_MODEL_DIR, TENSORBOARD_LOG_DIR, RESULTS_DIR, INTERM_RESULTS, LOGS])
 
 writer = TensorBoardWriter.get_writer(log_dir=TENSORBOARD_LOG_DIR + '/' + script_uid)
 
