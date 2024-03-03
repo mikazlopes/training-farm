@@ -24,7 +24,7 @@ RUN pip install \
     git+https://github.com/mikazlopes/FinRLOptimized
 
 # Clone your training-farm repository and install additional requirements
-RUN git clone https://github.com/mikazlopes/training-farm.git && \
+RUN git clone -b hp-optuna https://github.com/mikazlopes/training-farm.git && \
     cd training-farm && \
     pip install -r requirements.txt
 
