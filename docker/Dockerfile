@@ -38,21 +38,21 @@ RUN mkdir cache \
     mkdir logs
 
 
-# Start MySQL and setup database
-#RUN sed -i 's/bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
+#Start MySQL and setup database
+RUN sed -i 's/bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
 
-# Initialize MySQL data directory and start the MySQL service
-# RUN service mysql start && \
-#     mysql -u root -e "CREATE DATABASE IF NOT EXISTS optuna_example;" && \
-#     mysql -u root -e "CREATE USER IF NOT EXISTS 'optuna_user'@'%' IDENTIFIED BY 'r00t4dm1n';" && \
-#     mysql -u root -e "GRANT ALL PRIVILEGES ON optuna_example.* TO 'optuna_user'@'%'; FLUSH PRIVILEGES;"
+#Initialize MySQL data directory and start the MySQL service
+RUN service mysql start && \
+    mysql -u root -e "CREATE DATABASE IF NOT EXISTS optuna_example;" && \
+    mysql -u root -e "CREATE USER IF NOT EXISTS 'optuna_user'@'%' IDENTIFIED BY 'r00t4dm1n';" && \
+    mysql -u root -e "GRANT ALL PRIVILEGES ON optuna_example.* TO 'optuna_user'@'%'; FLUSH PRIVILEGES;"
 
-# COPY start_services.sh /start_services.sh
-# RUN chmod +x /start_services.sh
+COPY start_services.sh /start_services.sh
+RUN chmod +x /start_services.sh
 
-# Command to run the application, default arguments can be overridden at runtime
-# Optuna-dashboard is started here in the background and then the main python script
-# CMD ["/start_services.sh"]
+#Command to run the application, default arguments can be overridden at runtime
+#Optuna-dashboard is started here in the background and then the main python script
+CMD ["/start_services.sh"]
 
 
 
