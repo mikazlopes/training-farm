@@ -29,7 +29,7 @@ RUN git clone https://github.com/mikazlopes/training-farm.git && \
     pip install -r requirements.txt
 
 # Expose ports for the services
-EXPOSE 8080 3306 5678
+EXPOSE 8080 3306 5678 6006
 
 WORKDIR /training-farm
 

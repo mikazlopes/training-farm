@@ -11,6 +11,8 @@ from finrl.meta.data_processor import DataProcessor
 import logging
 import numpy as np
 import pandas as pd
+import dask
+dask.config.set({'dataframe.query-planning': True})
 import dask.dataframe as dd
 from dask.distributed import Client
 import pickle
@@ -98,7 +100,7 @@ def subtract_years_from_date(date_str, period_years):
 
 TRAIN_START_DATE = subtract_years_from_date(TRAIN_START_DATE, period_years=period_years)
 
-if_nd = False
+if_nd = True
 
 action_dim = len(ticker_list)
 
@@ -236,7 +238,7 @@ class Config:
         self.horizon_len = int(hlength)  # collect horizon_len step while exploring, then update network
         self.buffer_size = None  # ReplayBuffer size. Empty the ReplayBuffer for on-policy.
         self.repeat_times = 8.0  # repeatedly update network using ReplayBuffer to keep critic's loss small
-        self.seed = 312
+        self.seed = 312 # Seed Value
 
         '''Arguments for evaluate'''
         self.cwd = None  # current working directory to save model. None means set automatically

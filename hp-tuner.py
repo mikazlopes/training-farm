@@ -1,14 +1,11 @@
 
 from __future__ import annotations
 
-API_KEY = "PKPVXMUY5SEZI92CVN2U"
-API_SECRET = "QpiszkVxetaOhYCPEhafggIGU6CaIV8gbmIXhaFu"
-API_BASE_URL = 'https://paper-api.alpaca.markets'
-data_url = 'wss://data.alpaca.markets'
+from finrl.config import INDICATORS, SENTIMENT, ECONOMY, RETURNS, PRICE_MOVEMENT, VOLUME, DATE 
+from finrl.config import DATA_SAVE_DIR, RESULTS_DIR, TENSORBOARD_LOG_DIR, TRAIN_END_DATE, TRAIN_START_DATE, TEST_END_DATE, TEST_START_DATE, TRAINED_MODEL_DIR, INTERM_RESULTS
+from finrl.config_private import ALPACA_API_BASE_URL, ALPACA_API_KEY, ALPACA_API_SECRET, ALPHA_VANTAGE_KEY, EOD_KEY
 
-from finrl.config import INDICATORS, ECONOMY_SENTIMENT
 from finrl.config_tickers import MIGUEL_TICKER, DOW_30_TICKER, NAS_100_TICKER, BOT30_TICKER, ROUNDED_TICKER, TECH_TICKER, SINGLE_TICKER, DRL_ALGO_TICKERS
-from finrl.config import INDICATORS, DATA_SAVE_DIR, RESULTS_DIR, TENSORBOARD_LOG_DIR, TRAIN_END_DATE, TRAIN_START_DATE, TEST_END_DATE, TEST_START_DATE, TRAINED_MODEL_DIR, ALPACA_API_KEY, ALPACA_API_SECRET, ALPACA_API_BASE_URL, INTERM_RESULTS
 from optuna.trial import TrialState
 import multiprocessing
 from finrl.meta.env_stock_trading.env_stocktrading_nd import StockTradingEnv
@@ -16,6 +13,8 @@ from finrl.meta.data_processor import DataProcessor
 import logging
 import numpy as np
 import pandas as pd
+import dask
+dask.config.set({'dataframe.query-planning': True})
 import dask.dataframe as dd
 from dask.distributed import Client
 import pickle
@@ -32,6 +31,10 @@ import hashlib
 import requests
 import optuna
 from optuna import Trial
+import matplotlib.pyplot as plt
+import uuid
+import hashlib
+pd.set_option('display.max_columns', None)
 
 def check_and_make_directories(directories: list[str]):
     for directory in directories:
@@ -55,16 +58,15 @@ args = parser.parse_args()
 
 period_years = args.period_years
 num_instances = args.num_instances
+
 if args.gpu_id is None:
     gpuID = -1
 else:
     gpuID = args.gpu_id
 
-totalTimesteps = period_years * 200000
+script_uid = hashlib.md5(str(uuid.uuid4()).encode('utf-8')).hexdigest()[:6]
 
-id_name = 'hp-tuner'
-
-#gpuID = args.gpu_id
+id_name = script_uid
 
 if not os.path.exists('logs'):
     os.makedirs('logs')
@@ -82,23 +84,42 @@ def subtract_years_from_date(date_str, period_years):
     new_date_obj = date_obj.replace(year=date_obj.year - period_years)
     return new_date_obj.strftime("%Y-%m-%d")
 
-TRAIN_START_DATE = subtract_years_from_date("2022-01-01", period_years=period_years)
-TRAIN_END_DATE = '2022-12-31'
-TEST_START_DATE = '2023-01-01'
-TEST_END_DATE = '2023-12-31'
+TRAIN_START_DATE = subtract_years_from_date(TRAIN_START_DATE, period_years=period_years)
+
 if_nd = True
-initial_capital = 2e3
-ticker_list = BOT30_TICKER
+
+initial_capital = 3e4
+
+ticker_list = SINGLE_TICKER
+
 action_dim = len(ticker_list)
+
+# Initialize Hyperparameters variables
+
+hlenght = int(2e3)
+l_gae_adv = float(0.95)
+l_entropy = float(0.01)
+break_step = action_dim * 1e7
+totalTimesteps = period_years * 300000
+
 if if_nd:
-    state_dim = 1 + 2 + 3 * action_dim + len(INDICATORS) * action_dim + len(ECONOMY_SENTIMENT) * action_dim + 1
+    state_dim = 1 + 2 + 3 * action_dim + len(INDICATORS) * action_dim + len(SENTIMENT) * action_dim + len(ECONOMY) * action_dim + len(RETURNS) * action_dim + len(PRICE_MOVEMENT) * action_dim + len(VOLUME) * action_dim + len(DATE) * action_dim + 1
 else:
     state_dim = 1 + 2 + 3 * action_dim + len(INDICATORS) * action_dim + 1
 
-logging.info(f'Training State Dimension: {state_dim}')
+logging.info(f'''The State Dimension in Training is {state_dim},
+             Initial: {1 + 2 + 3 * action_dim},
+             Indicators (Tech): {len(INDICATORS) * action_dim},
+             Sentiment: {len(SENTIMENT) * action_dim},
+             Economy: {len(ECONOMY) * action_dim},
+             Returns: {len(RETURNS) * action_dim},
+             Price Movement: {len(PRICE_MOVEMENT) * action_dim},
+             Volume: {len(VOLUME) * action_dim},
+             Date: {len(DATE) * action_dim}''')
+
 
 class ActorPPO(nn.Module):
-    def __init__(self, dims: [int], state_dim: int, action_dim: int):
+    def __init__(self, dims: [int], state_dim: int, action_dim: int): # type: ignore
         super().__init__()
         self.net = build_mlp(dims=[state_dim, *dims, action_dim])
         self.action_std_log = nn.Parameter(torch.zeros((1, action_dim)), requires_grad=True)  # trainable parameter
@@ -106,7 +127,7 @@ class ActorPPO(nn.Module):
     def forward(self, state: Tensor) -> Tensor:
         return self.net(state).tanh()  # action.tanh()
 
-    def get_action(self, state: Tensor) -> (Tensor, Tensor):  # for exploration
+    def get_action(self, state: Tensor) -> (Tensor, Tensor):  # for exploration # type: ignore # type: ignore
         action_avg = self.net(state)
         action_std = self.action_std_log.exp()
 
@@ -115,7 +136,7 @@ class ActorPPO(nn.Module):
         logprob = dist.log_prob(action).sum(1)
         return action, logprob
 
-    def get_logprob_entropy(self, state: Tensor, action: Tensor) -> (Tensor, Tensor):
+    def get_logprob_entropy(self, state: Tensor, action: Tensor) -> (Tensor, Tensor): # type: ignore
         action_avg = self.net(state)
         action_std = self.action_std_log.exp()
 
@@ -130,7 +151,7 @@ class ActorPPO(nn.Module):
 
 
 class CriticPPO(nn.Module):
-    def __init__(self, dims: [int], state_dim: int, _action_dim: int):
+    def __init__(self, dims: [int], state_dim: int, _action_dim: int): # type: ignore
         super().__init__()
         self.net = build_mlp(dims=[state_dim, *dims, 1])
 
@@ -138,7 +159,7 @@ class CriticPPO(nn.Module):
         return self.net(state)  # advantage value
 
 
-def build_mlp(dims: [int]) -> nn.Sequential:  # MLP (MultiLayer Perceptron)
+def build_mlp(dims: [int]) -> nn.Sequential:  # MLP (MultiLayer Perceptron) # type: ignore # type: ignore
     net_list = []
     for i in range(len(dims) - 1):
         net_list.extend([nn.Linear(dims[i], dims[i + 1]), nn.ReLU()])
@@ -170,9 +191,11 @@ class Config:
         self.learning_rate = 6e-5  # 2 ** -14 ~= 6e-5
         self.soft_update_tau = 5e-3  # 2 ** -8 ~= 5e-3
         self.batch_size = int(128)  # num of transitions sampled from replay buffer.
-        self.horizon_len = int(2000)  # collect horizon_len step while exploring, then update network
+        self.horizon_len = int(hlenght)  # collect horizon_len step while exploring, then update network
+        logging.info(f'Horizon Length: {hlenght}')
         self.buffer_size = None  # ReplayBuffer size. Empty the ReplayBuffer for on-policy.
         self.repeat_times = 8.0  # repeatedly update network using ReplayBuffer to keep critic's loss small
+        self.seed = 312 # Seed Value
 
         '''Arguments for evaluate'''
         self.cwd = None  # current working directory to save model. None means set automatically
@@ -222,7 +245,7 @@ def build_env(env_class=None, env_args=None):
 
 
 class AgentBase:
-    def __init__(self, net_dims: [int], state_dim: int, action_dim: int, gpu_id: int = gpuID, args: Config = Config()):
+    def __init__(self, net_dims: [int], state_dim: int, action_dim: int, gpu_id: int = gpuID, args: Config = Config()): # type: ignore
         self.state_dim = state_dim
         self.action_dim = action_dim
 
@@ -261,18 +284,20 @@ class AgentBase:
 
 
 class AgentPPO(AgentBase):
-    def __init__(self, net_dims: [int], state_dim: int, action_dim: int, gpu_id: int = gpuID, args: Config = Config()):
+    def __init__(self, net_dims: [int], state_dim: int, action_dim: int, gpu_id: int = gpuID, args: Config = Config()): # type: ignore
         self.if_off_policy = False
         self.act_class = getattr(self, "act_class", ActorPPO)
         self.cri_class = getattr(self, "cri_class", CriticPPO)
         AgentBase.__init__(self, net_dims, state_dim, action_dim, gpu_id, args)
 
         self.ratio_clip = getattr(args, "ratio_clip", 0.25)  # `ratio.clamp(1 - clip, 1 + clip)`
-        self.lambda_gae_adv = getattr(args, "lambda_gae_adv", 0.95)  # could be 0.80~0.99
-        self.lambda_entropy = getattr(args, "lambda_entropy", 0.01)  # could be 0.00~0.10
+        self.lambda_gae_adv = getattr(args, "lambda_gae_adv", l_gae_adv)  # could be 0.80~0.99
+        self.lambda_entropy = getattr(args, "lambda_entropy", l_entropy)  # could be 0.00~0.10
+        logging.info(f'Lambda GAE: {self.lambda_gae_adv}')
+        logging.info(f'Lambda Entropy: {self.lambda_entropy}')
         self.lambda_entropy = torch.tensor(self.lambda_entropy, dtype=torch.float32, device=self.device)
 
-    def explore_env(self, env, horizon_len: int) -> [Tensor]:
+    def explore_env(self, env, horizon_len: int) -> [Tensor]: # type: ignore
         states = torch.zeros((horizon_len, self.state_dim), dtype=torch.float32).to(self.device)
         actions = torch.zeros((horizon_len, self.action_dim), dtype=torch.float32).to(self.device)
         logprobs = torch.zeros(horizon_len, dtype=torch.float32).to(self.device)
@@ -304,7 +329,7 @@ class AgentPPO(AgentBase):
         undones = (1 - dones.type(torch.float32)).unsqueeze(1)
         return states, actions, logprobs, rewards, undones
 
-    def update_net(self, buffer) -> [float]:
+    def update_net(self, buffer) -> [float]: # type: ignore # type: ignore
         with torch.no_grad():
             states, actions, logprobs, rewards, undones = buffer
             buffer_size = states.shape[0]
@@ -385,7 +410,7 @@ class PendulumEnv(gym.Wrapper):  # a demo of custom gym env
     def reset(self) -> np.ndarray:  # reset the agent in env
         return self.env.reset()
 
-    def step(self, action: np.ndarray) -> (np.ndarray, float, bool, dict):  # agent interacts in env
+    def step(self, action: np.ndarray) -> (np.ndarray, float, bool, dict):  # type: ignore # agent interacts in env
         # We suggest that adjust action space to (-1, +1) when designing a custom env.
         state, reward, done, info_dict = self.env.step(action * 2)
         return state.reshape(self.state_dim), float(reward), done, info_dict
@@ -420,7 +445,7 @@ def train_agent(args: Config, trial):
         
 
 
-def render_agent(env_class, env_args: dict, net_dims: [int], agent_class, actor_path: str, render_times: int = 8):
+def render_agent(env_class, env_args: dict, net_dims: [int], agent_class, actor_path: str, render_times: int = 8): # type: ignore # type: ignore
     env = build_env(env_class, env_args)
 
     state_dim = env_args['state_dim']
@@ -485,7 +510,7 @@ class Evaluator:
             raise optuna.exceptions.TrialPruned()
 
 
-def get_rewards_and_steps(env, actor, if_render: bool = False) -> (float, int):  # cumulative_rewards and episode_steps
+def get_rewards_and_steps(env, actor, if_render: bool = False) -> (float, int):  # cumulative_rewards and episode_steps # type: ignore
     device = next(actor.parameters()).device  # net.parameters() is a Python generator.
 
     state = env.reset()[0]
@@ -535,7 +560,7 @@ class DRLAgent:
             make a prediction in a test dataset and get results
     """
 
-    def __init__(self, env, price_array, tech_array, turbulence_array, sentiment_array=None, economy_array=None, price_movement_array=None, date_array=None, if_nd=False):
+    def __init__(self, env, price_array, tech_array, turbulence_array, sentiment_array=None, economy_array=None, returns_array=None, price_movement_array=None, volume_array=None, date_array=None, if_nd=False, trial=None, bonus_rate=None, penalty_rate=None, per_dollar_amount=None):
         self.env = env
         self.price_array = price_array
         self.tech_array = tech_array
@@ -543,11 +568,18 @@ class DRLAgent:
         if if_nd:
             self.sentiment_array = sentiment_array
             self.economy_array = economy_array
+            self.returns_array = returns_array
             self.price_movement_array = price_movement_array
+            self.volume_array = volume_array
             self.date_array = date_array
         self.if_nd = if_nd
+        self.trial = trial
+        self.bonus_rate = bonus_rate
+        self.penalty_rate = penalty_rate
+        self.per_dollar_amount = per_dollar_amount
 
     def get_model(self, model_name, model_kwargs):
+
         if self.if_nd:
             env_config = {
                 "price_array": self.price_array,
@@ -555,9 +587,17 @@ class DRLAgent:
                 "turbulence_array": self.turbulence_array,
                 "sentiment_array": self.sentiment_array,
                 "economy_array": self.economy_array,
+                "returns_array": self.returns_array,
                 "price_movement_array": self.price_movement_array,
+                "volume_array": self.volume_array,
                 "date_array": self.date_array,
                 "if_nd": self.if_nd,
+                "initial_capital": initial_capital,
+                "script_uid": script_uid,
+                "trial_number": self.trial.number,
+                "bonus_rate": self. bonus_rate,
+                "penalty_rate": self.penalty_rate,
+                "per_dollar_amount": self.per_dollar_amount,
                 "if_train": True,
             }
         else:
@@ -566,6 +606,12 @@ class DRLAgent:
                 "tech_array": self.tech_array,
                 "turbulence_array": self.turbulence_array,
                 "if_nd": self.if_nd,
+                "initial_capital": initial_capital,
+                "script_uid": script_uid,
+                "trial_number": self.trial.number,
+                "bonus_rate": self. bonus_rate,
+                "penalty_rate": self.penalty_rate,
+                "per_dollar_amount": self.per_dollar_amount,
                 "if_train": True,
             }
         environment = self.env(config=env_config)
@@ -586,8 +632,8 @@ class DRLAgent:
                 model.gamma = model_kwargs["gamma"]
                 model.seed = model_kwargs["seed"]
                 model.net_dims = model_kwargs["net_dimension"]
-                model.target_step = model_kwargs["target_step"]
-                model.eval_gap = model_kwargs["eval_gap"]
+                model.break_step = model_kwargs["break_step"]
+                model.eval_per_step = model_kwargs["eval_gap"]
                 model.eval_times = model_kwargs["eval_times"]
             except BaseException:
                 raise ValueError(
@@ -602,7 +648,7 @@ class DRLAgent:
         return final_reward
 
     @staticmethod
-    def DRL_prediction(model_name, cwd, net_dimension, environment):
+    def DRL_prediction(model_name, cwd, net_dimension, environment, trial_number):
         if model_name not in MODELS:
             raise NotImplementedError("NotImplementedError")
         agent_class = MODELS[model_name]
@@ -644,7 +690,53 @@ class DRLAgent:
                 episode_returns.append(episode_return)
                 if done:
                     break
+
         logging.info("Test Finished!")
+
+        action_df = pd.DataFrame(environment.action_log)
+        action_df.to_csv(f"{RESULTS_DIR}/optuna_{trial_number}_{script_uid}.csv", index=False)
+        logging.info(f"Detailed action log saved to {RESULTS_DIR}/optuna_{trial_number}_{script_uid}.csv")
+
+        # Plotting
+        fig, axs = plt.subplots(4, 1, figsize=(15, 25), sharex=True)  # Increase the subplot count to 4
+
+        # Plot 1: Executed Trading Actions
+        for stock_index in sorted(action_df['stock_index'].unique()):
+            df = action_df[action_df['stock_index'] == stock_index]
+            axs[0].plot(df['day'], df['quantity'], label=f'Stock {stock_index}')
+        axs[0].set_title('Executed Trading Actions Over Time')
+        axs[0].set_ylabel('Executed Quantity')
+        axs[0].legend()
+
+        # Plot 2: Stock Holdings
+        for stock_index in sorted(action_df['stock_index'].unique()):
+            df = action_df[action_df['stock_index'] == stock_index]
+            axs[1].plot(df['day'], df['stocks_held'], label=f'Stock {stock_index}')
+        axs[1].set_title('Stock Holdings Over Time')
+        axs[1].set_ylabel('Quantity Held')
+        axs[1].legend()
+
+        # Plot 3: Cash Amount and Portfolio Value
+        axs[2].plot(action_df['day'], action_df['cash_amount'], label='Cash Amount', color='blue')
+        axs[2].plot(action_df['day'], action_df['portfolio_value'], label='Portfolio Value', color='green')
+        axs[2].set_title('Cash and Portfolio Value Over Time')
+        axs[2].set_xlabel('Day')
+        axs[2].set_ylabel('Value')
+        axs[2].legend()
+
+        # Plot 4: Correlation of Reward Value and Profit/Loss
+        axs[3].scatter(action_df['reward_value'], action_df['profit_loss'], alpha=0.5)
+        axs[3].set_title('Correlation between Reward Value and Profit/Loss')
+        axs[3].set_xlabel('Reward Value')
+        axs[3].set_ylabel('Profit/Loss')
+        axs[3].grid(True)
+
+        plt.tight_layout()
+        plt.savefig(f"{RESULTS_DIR}/optuna_{trial_number}_{script_uid}_plot.png")
+        plt.close(fig)  # Close the figure to free memory
+        logging.info(f"Graphical detailed action log saved to {RESULTS_DIR}/optuna_{trial_number}_{script_uid}_plot.png")
+
+
         # return episode total_assets on testing data
         logging.info(f"episode_return: {episode_return}")
         #sio.send({'uid': script_uid, 'type': 'returns', 'cwd': cwd, 'value': float(episode_return)})
@@ -686,13 +778,13 @@ class TrainingTesting:
         self.kwargs = kwargs
 
 
-    def _generate_cache_key(self, tickers, start_date, end_date):
-        combined_string = '_'.join(tickers) + f"_{start_date}_{end_date}"
+    def _generate_cache_key(self, tickers, start_date, end_date, time_interval):
+        combined_string = '_'.join(tickers) + f"_{start_date}_{end_date}_{time_interval}"
         hashed_key = hashlib.md5(combined_string.encode()).hexdigest()
         return f"{hashed_key}.pkl"
 
-    def _generate_sentiment_cache_key(self, tickers, start_date, end_date):
-        sentiment_key = '_'.join(tickers) + f"_sentiment_{start_date}_{end_date}"
+    def _generate_sentiment_cache_key(self, tickers, start_date, end_date, time_interval):
+        sentiment_key = '_'.join(tickers) + f"_sentiment_{start_date}_{end_date}_{time_interval}"
         hashed_key = hashlib.md5(sentiment_key.encode()).hexdigest()
         return f"{hashed_key}_sentiment.pkl"
 
@@ -710,14 +802,22 @@ class TrainingTesting:
         return None
     
     def objective(self, trial):
+        global l_gae_adv, l_entropy, hlenght, break_step #Update the parameters
         # Suggest hyperparameters
         learning_rate = trial.suggest_float('learning_rate', 2e-6, 4e-6, log=True)
-        batch_size = trial.suggest_categorical('batch_size', [64, 128, 256, 512, 1024, 2048, 4096])
-        gamma = trial.suggest_float('gamma', 0.9, 0.999)
+        l_gae_adv = trial.suggest_float('l_gae_adv', 0.80, 0.99, step=0.01)
+        l_entropy = trial.suggest_float('l_entropy', 0.01, 0.10, step=0.01)
+        hlenght = trial.suggest_int('horizontal_lenght', low=1000, high=6000, step=500)
+        batch_size = trial.suggest_categorical('batch_size', [256, 512, 1024, 2048, 4096])
+        gamma = trial.suggest_categorical('gamma', [0.95, 0.96, 0.97, 0.98, 0.985, 0.9, 0.95, 0.99])
         net_dimension = trial.suggest_categorical('net_dimension', ['128,64', '256,128', '512,256', '1024,512', '128,64,32', '256,128,64', '512,256,128', '1024,512,256'])
-        break_step = trial.suggest_int('target_step', low=100000, high=2000000, step=20000)
-        eval_gap = trial.suggest_int('eval_gap', low=1000, high=10000, step=1000)
-        eval_times = trial.suggest_int('eval_times', low=2, high=16, step=1)
+        break_step = trial.suggest_int('target_step', low= len(ticker_list) * 5e7, high=len(ticker_list) * 3e8, step=1e7)
+        eval_gap = break_step // 10
+        eval_times = 8
+        self.bonus_rate = trial.suggest_float('bonus_rate', 0.10, 0.40, step=0.05)
+        self.penalty_rate = trial.suggest_float('penalty_rate', 0.10, 0.40, step=0.05)
+        self.per_dollar_amount = trial.suggest_int('per_dollar_amount', 10, 100, step=10)
+
 
         # Set up model kwargs with the suggested hyperparameters
         model_kwargs = {
@@ -729,6 +829,7 @@ class TrainingTesting:
             "seed": 312,
             "eval_gap": eval_gap,
             "eval_times": eval_times,
+            "break_step": break_step,
             # ... add other hyperparameters here ...
         }
 
@@ -742,10 +843,10 @@ class TrainingTesting:
 
         # Check if processed data is in cache
         dp = DataProcessor(self.data_source, tech_indicator=self.technical_indicator_list, **self.kwargs)
-        processed_cache_key = self._generate_sentiment_cache_key(self.ticker_list, self.train_start_date, self.train_end_date)
+        processed_cache_key = self._generate_sentiment_cache_key(self.ticker_list, self.train_start_date, self.train_end_date, self.time_interval)
         processed_data = self._load_from_cache(processed_cache_key)
         # Check if raw data is in cache
-        raw_cache_key = self._generate_cache_key(self.ticker_list, self.train_start_date, self.train_end_date)
+        raw_cache_key = self._generate_cache_key(self.ticker_list, self.train_start_date, self.train_end_date, self.time_interval)
         raw_data = self._load_from_cache(raw_cache_key)
 
         if processed_data is None:           
@@ -777,7 +878,8 @@ class TrainingTesting:
             
                 # Function to calculate increase/decrease and returns within each ticker group
                 def calculate_metrics(group):
-                    group['returns'] = group['close'].pct_change()
+                    group['close'] = group['close'].ffill()  # Forward fill the 'close' column
+                    group['returns'] = group['close'].pct_change()  # Now calculate the percent change
                     group['increase_decrease'] = np.where(group['returns'] > 0, 1, 0)
                     return group
 
@@ -809,7 +911,9 @@ class TrainingTesting:
                 raw_data['month_cos'] = np.cos(2 * np.pi * raw_data['month'] / 12.0)  # 12 for months in a year
                 raw_data['minute_sin'] = np.sin((2 * np.pi * raw_data['minute']) / 60.0)  # Adjusted to 60
                 raw_data['minute_cos'] = np.cos(2 * np.pi * raw_data['minute'] / 60.0)  # Adjusted to 60
-                
+                raw_data['weekday_sin'] = np.sin(2 * np.pi * raw_data['weekday'] / 7.0)  # Adjusted to 7
+
+
                 def fetch_alpha_vantage_data(url):
                     response = requests.get(url)
                     if response.status_code == 200:
@@ -822,9 +926,12 @@ class TrainingTesting:
                 # Initialize Dask Client
                 client = Client(n_workers=4, threads_per_worker=8)
 
-                # Determine the number of partitions
-                npartitions = len(raw_data) // (5 * 10**5)  # For instance, one partition per 5 million rows
-
+                if len(raw_data) < 5e6:
+                    # Determine the number of partitions
+                    npartitions = 5
+                else:
+                    npartitions = len(raw_data) // (5 * 10**5)  # For instance, one partition per 5 million rows
+                    
                 # Convert pandas DataFrame to Dask DataFrame
                 dask_data = dd.from_pandas(raw_data, npartitions=npartitions)
 
@@ -834,7 +941,10 @@ class TrainingTesting:
                     for record in av_data:
                         record_date = pd.to_datetime(record['date'])
                         if start_date <= record_date <= end_date:
-                            value = float(record['value'])
+                            if column_name == 'cpi':
+                                value = float(record['value']) / 100 #scale the CPI value
+                            else:
+                                value = float(record['value'])
                             if frequency == 'annual':
                                 mask = (partition['year'] == record_date.year) | (partition['year'] == record_date.year + 1)
                             elif frequency == 'monthly':
@@ -854,13 +964,12 @@ class TrainingTesting:
                 def integrate_alpha_vantage_data(dask_data, av_data, column_name, frequency, start_date, end_date):
                     if column_name not in dask_data.columns:
                         dask_data[column_name] = 0.0
-
                     processed_data = dask_data.map_partitions(process_economic_indicator_partition, av_data, column_name, frequency, start_date, end_date)
                     return processed_data
 
                 logging.info('Adding Economy Indicators')
                 # API Key for Alpha Vantage
-                av_api_key = "YX3B131O5GGVYZ41"
+                av_api_key = ALPHA_VANTAGE_KEY
                 logging.info("Adding CPI")
                 # Consumer Price Index
                 cpi_url = f"https://www.alphavantage.co/query?function=CPI&interval=monthly&apikey={av_api_key}"
@@ -900,13 +1009,13 @@ class TrainingTesting:
                         formatted_ticker = ticker.split('.')[0]  # Strip off '.US'
                         for record in records:
                             record_date = pd.to_datetime(record['date'])
-                            normalized_sentiment = record['count'] * record['normalized']
+                            #normalized_sentiment = record['count'] * record['normalized']
+                            normalized_sentiment = record['normalized']
                             mask = (partition['tic'] == formatted_ticker) & \
                                 (partition['year'] == record_date.year) & \
                                 (partition['month'] == record_date.month) & \
                                 (partition['day'] == record_date.day)
                             partition.loc[mask, 'sentiment'] = normalized_sentiment
-                            # print(f"Adding Sentiment Score : {normalized_sentiment} to Ticker : {formatted_ticker} at {record_date.year}-{record_date.month}-{record_date.day}")
                     return partition
 
                 def integrate_sentiment_data(raw_data, sentiment_data, start_date, end_date):
@@ -921,23 +1030,20 @@ class TrainingTesting:
                     processed_data = raw_data.map_partitions(process_partition, ticker_sentiments)
                     processed_data['sentiment'] = processed_data['sentiment'].fillna(0)
                     return processed_data
-
+                
                 # Example usage
-                eod_api_key = '6599bce98e23f7.19353282'
+                eod_api_key = EOD_KEY
                 logging.info('Downloading Sentiment data')
-                sentiment_data = fetch_sentiment_data(self.ticker_list, self.train_start_date, self.train_end_date, eod_api_key)
+                sentiment_data = fetch_sentiment_data(ticker_list, self.train_start_date, self.train_end_date, eod_api_key)
 
                 # Process data using Dask with multi-threaded scheduler
                 logging.info('Processing Sentiment data')
                 processed_dask_data = integrate_sentiment_data(dask_data, sentiment_data, self.train_start_date, self.train_end_date)
 
-                # Convert Dask DataFrame back to Pandas DataFrame in chunks
-                #processed_data = pd.concat([part.compute() for part in processed_dask_data.to_delayed()])
-
-                #processed_data = processed_dask_data.compute()
                 logging.info('Convert Dask DataFrame back to Pandas DataFrame in chunks')
+                
                 # Convert Dask DataFrame back to Pandas DataFrame in chunks
-                chunk_size = 5 * 10**6  # Adjust this based on your memory capacity
+                
                 import gc
                 processed_data = pd.DataFrame()
 
@@ -972,9 +1078,12 @@ class TrainingTesting:
             
             data = raw_data
 
+        print(data.head(50))
+        print(data.tail(50))
+
         if if_nd:
 
-            price_array, tech_array, turbulence_array, sentiment_array, economy_array, price_movement_array, date_array = dp.df_to_array(data, self.if_vix, if_nd)
+            price_array, tech_array, turbulence_array, sentiment_array, economy_array, returns_array, price_movement_array, volume_array, date_array = dp.df_to_array(data, self.if_vix, if_nd)
 
         else:
 
@@ -987,9 +1096,17 @@ class TrainingTesting:
                 "turbulence_array": turbulence_array,
                 "sentiment_array": sentiment_array,
                 "economy_array": economy_array,
+                "returns_array": returns_array,
                 "price_movement_array": price_movement_array,
+                "volume_array": volume_array,
                 "date_array": date_array,
                 "if_nd": if_nd,
+                "initial_capital": initial_capital,
+                "script_uid": script_uid,
+                "trial_number": trial.number,
+                "bonus_rate": self. bonus_rate,
+                "penalty_rate": self.penalty_rate,
+                "per_dollar_amount": self.per_dollar_amount,
                 "if_train": True,
             }
         else:
@@ -998,10 +1115,17 @@ class TrainingTesting:
                 "tech_array": tech_array,
                 "turbulence_array": turbulence_array,
                 "if_nd": if_nd,
+                "initial_capital": initial_capital,
+                "script_uid": script_uid,
+                "trial_number": trial.number,
+                "bonus_rate": self. bonus_rate,
+                "penalty_rate": self.penalty_rate,
+                "per_dollar_amount": self.per_dollar_amount,
                 "if_train": True,
             } 
 
         env_instance = env(config=env_config)
+
         # read parameters
         cwd = './optuna/trial' + str(trial.number) + '-' + str(model_kwargs.get("net_dimension"))
       
@@ -1015,10 +1139,17 @@ class TrainingTesting:
                 tech_array=tech_array,
                 turbulence_array=turbulence_array,
                 sentiment_array=sentiment_array,
+                returns_array=returns_array,
                 economy_array=economy_array,
                 price_movement_array=price_movement_array,
+                volume_array=volume_array,
                 date_array=date_array,
-                if_nd=if_nd
+                if_nd=if_nd,
+                trial=trial,
+                bonus_rate=self.bonus_rate,
+                penalty_rate=self.penalty_rate,
+                per_dollar_amount=self.per_dollar_amount
+                
             )
         else:
             agent = DRLAgent_erl(
@@ -1026,15 +1157,21 @@ class TrainingTesting:
                 price_array=price_array,
                 tech_array=tech_array,
                 turbulence_array=turbulence_array,
-                if_nd=if_nd
+                if_nd=if_nd,
+                trial=trial,
+                bonus_rate=self.bonus_rate,
+                penalty_rate=self.penalty_rate,
+                per_dollar_amount=self.per_dollar_amount
             )
+
         model = agent.get_model(self.model_name, model_kwargs=model_kwargs)
         logging.info("Training Started")
+
         trained_model_reward = agent.train_model(
-            model=model, cwd=cwd, trial=trial, total_timesteps=model_kwargs.get("target_step", 1e6)
+            model=model, cwd=cwd, trial=trial, total_timesteps=model_kwargs.get("break_step", 1e6)
         )
 
-        test_model_reward = self.test(cwd, **model_kwargs)
+        test_model_reward = self.test(cwd, trial, **model_kwargs)
 
         return test_model_reward      
         
@@ -1062,7 +1199,7 @@ class TrainingTesting:
             grace_period=60 * 60 * 6  # 6 hours grace period for zombie trials
         )
 
-        pruner = optuna.pruners.HyperbandPruner(min_resource=100000, reduction_factor=3)
+        pruner = optuna.pruners.HyperbandPruner(min_resource=break_step // 5, reduction_factor=3)
 
         study = optuna.create_study(
             load_if_exists=True,
@@ -1084,15 +1221,16 @@ class TrainingTesting:
     def test(
     self,
     cwd,
+    trial,
     **kwargs,
     ):
 
          # Check if processed data is in cache
         dp = DataProcessor(self.data_source, tech_indicator=self.technical_indicator_list, **self.kwargs)
-        processed_cache_key = self._generate_sentiment_cache_key(self.ticker_list, self.test_start_date, self.test_end_date)
+        processed_cache_key = self._generate_sentiment_cache_key(self.ticker_list, self.test_start_date, self.test_end_date, self.time_interval)
         processed_data = self._load_from_cache(processed_cache_key)
         # Check if raw data is in cache
-        raw_cache_key = self._generate_cache_key(self.ticker_list, self.test_start_date, self.test_end_date)
+        raw_cache_key = self._generate_cache_key(self.ticker_list, self.test_start_date, self.test_end_date, self.time_interval)
         raw_data = self._load_from_cache(raw_cache_key)
 
         if processed_data is None:           
@@ -1156,6 +1294,7 @@ class TrainingTesting:
                 raw_data['month_cos'] = np.cos(2 * np.pi * raw_data['month'] / 12.0)  # 12 for months in a year
                 raw_data['minute_sin'] = np.sin((2 * np.pi * raw_data['minute']) / 60.0)  # Adjusted to 60
                 raw_data['minute_cos'] = np.cos(2 * np.pi * raw_data['minute'] / 60.0)  # Adjusted to 60
+                raw_data['weekday_sin'] = np.sin(2 * np.pi * raw_data['weekday'] / 7.0)  # Adjusted to 7
                 
                 def fetch_alpha_vantage_data(url):
                     response = requests.get(url)
@@ -1169,8 +1308,11 @@ class TrainingTesting:
                 # Initialize Dask Client
                 client = Client(n_workers=4, threads_per_worker=8)
 
-                # Determine the number of partitions
-                npartitions = len(raw_data) // (5 * 10**5)  # For instance, one partition per 5 million rows
+                if len(raw_data) < 5e6:
+                    # Determine the number of partitions
+                    npartitions = 5
+                else:
+                    npartitions = len(raw_data) // (5 * 10**5)  # For instance, one partition per 5 million rows
 
                 # Convert pandas DataFrame to Dask DataFrame
                 dask_data = dd.from_pandas(raw_data, npartitions=npartitions)
@@ -1181,7 +1323,10 @@ class TrainingTesting:
                     for record in av_data:
                         record_date = pd.to_datetime(record['date'])
                         if start_date <= record_date <= end_date:
-                            value = float(record['value'])
+                            if column_name == 'cpi':
+                                value = float(record['value']) / 100 #scale the CPI value
+                            else:
+                                value = float(record['value'])
                             if frequency == 'annual':
                                 mask = (partition['year'] == record_date.year) | (partition['year'] == record_date.year + 1)
                             elif frequency == 'monthly':
@@ -1207,7 +1352,7 @@ class TrainingTesting:
 
                 logging.info('Adding Economy Indicators')
                 # API Key for Alpha Vantage
-                av_api_key = "YX3B131O5GGVYZ41"
+                av_api_key = ALPHA_VANTAGE_KEY
                 logging.info("Adding CPI")
                 # Consumer Price Index
                 cpi_url = f"https://www.alphavantage.co/query?function=CPI&interval=monthly&apikey={av_api_key}"
@@ -1247,13 +1392,14 @@ class TrainingTesting:
                         formatted_ticker = ticker.split('.')[0]  # Strip off '.US'
                         for record in records:
                             record_date = pd.to_datetime(record['date'])
-                            normalized_sentiment = record['count'] * record['normalized']
+                            #normalized_sentiment = record['count'] * record['normalized']
+                            normalized_sentiment = record['normalized']
                             mask = (partition['tic'] == formatted_ticker) & \
                                 (partition['year'] == record_date.year) & \
                                 (partition['month'] == record_date.month) & \
                                 (partition['day'] == record_date.day)
                             partition.loc[mask, 'sentiment'] = normalized_sentiment
-                            # print(f"Adding Sentiment Score : {normalized_sentiment} to Ticker : {formatted_ticker} at {record_date.year}-{record_date.month}-{record_date.day}")
+                
                     return partition
 
                 def integrate_sentiment_data(raw_data, sentiment_data, start_date, end_date):
@@ -1270,9 +1416,9 @@ class TrainingTesting:
                     return processed_data
 
                 # Example usage
-                eod_api_key = '6599bce98e23f7.19353282'
+                api_token = EOD_KEY
                 logging.info('Downloading Sentiment data')
-                sentiment_data = fetch_sentiment_data(self.ticker_list, self.test_start_date, self.test_end_date, eod_api_key)
+                sentiment_data = fetch_sentiment_data(ticker_list, self.test_start_date, self.test_end_date, api_token)
 
                 # Process data using Dask with multi-threaded scheduler
                 logging.info('Processing Sentiment data')
@@ -1321,11 +1467,12 @@ class TrainingTesting:
 
         if if_nd:
 
-            price_array, tech_array, turbulence_array, sentiment_array, economy_array, price_movement_array, date_array = dp.df_to_array(data, self.if_vix, if_nd)
+            price_array, tech_array, turbulence_array, sentiment_array, economy_array, returns_array, price_movement_array, volume_array, date_array = dp.df_to_array(data, self.if_vix, if_nd)
 
         else:
 
             price_array, tech_array, turbulence_array = dp.df_to_array(data, self.if_vix, if_nd)
+
 
         if if_nd:
             env_config = {
@@ -1334,9 +1481,17 @@ class TrainingTesting:
                 "turbulence_array": turbulence_array,
                 "sentiment_array": sentiment_array,
                 "economy_array": economy_array,
+                "returns_array": returns_array,
                 "price_movement_array": price_movement_array,
+                "volume_array": volume_array,
                 "date_array": date_array,
                 "if_nd": if_nd,
+                "initial_capital": initial_capital,
+                "script_uid": script_uid,
+                "trial_number": trial.number,
+                "bonus_rate": self. bonus_rate,
+                "penalty_rate": self.penalty_rate,
+                "per_dollar_amount": self.per_dollar_amount,
                 "if_train": False,
             }
         else:
@@ -1345,11 +1500,19 @@ class TrainingTesting:
                 "tech_array": tech_array,
                 "turbulence_array": turbulence_array,
                 "if_nd": if_nd,
+                "initial_capital": initial_capital,
+                "script_uid": script_uid,
+                "trial_number": trial.number,
+                "bonus_rate": self. bonus_rate,
+                "penalty_rate": self.penalty_rate,
+                "per_dollar_amount": self.per_dollar_amount,
                 "if_train": False,
-            } 
+            }
 
         env_instance = env(config=env_config)
+        
         # load elegantrl needs state dim, action dim and net dim
+
         net_dimension = kwargs.get("net_dimension", 2**7)
 
         DRLAgent_erl = DRLAgent
@@ -1358,6 +1521,7 @@ class TrainingTesting:
             cwd=cwd,
             net_dimension=net_dimension,
             environment=env_instance,
+            trial_number=trial.number
         )
         return episode_total_assets
 
@@ -1377,10 +1541,11 @@ def run_optimization():
         model_name='ppo',
         if_vix=True,
         n_trials=1000, 
-        API_KEY = API_KEY, 
-        API_SECRET = API_SECRET, 
-        API_BASE_URL = API_BASE_URL)
-
+        API_KEY = ALPACA_API_KEY, 
+        API_SECRET = ALPACA_API_SECRET, 
+        API_BASE_URL = ALPACA_API_BASE_URL,
+        ALPHAVANTAGE = ALPHA_VANTAGE_KEY,
+        EOD = EOD_KEY)
     trainTest.optimize_hyperparameters()
 
 
