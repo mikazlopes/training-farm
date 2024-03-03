@@ -94,7 +94,7 @@ ticker_list = SINGLE_TICKER
 
 action_dim = len(ticker_list)
 
-# Initialize Hyperparameters variables
+# Initialize Hyperparameters variables, will be changed before training starts
 
 hlenght = int(2e3)
 l_gae_adv = float(0.95)
