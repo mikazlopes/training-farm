@@ -491,20 +491,18 @@ class Evaluator:
         avg_r = rewards_steps_ary[:, 0].mean()  # average of cumulative rewards
         std_r = rewards_steps_ary[:, 0].std()  # std of cumulative rewards
         avg_s = rewards_steps_ary[:, 1].mean()  # average of steps in an episode
+        avg_er = rewards_steps_ary[:, 2].mean()  # average of Epsiode Returns
+        std_er = std_r = rewards_steps_ary[:, 2].std()  # std of Episode Returns
 
         used_time = time.time() - self.start_time
         self.recorder.append((self.total_step, used_time, avg_r))
-
-        money_value = avg_r/2**-11
-
-        avg_return = money_value/initial_capital
         
         logging.info(f"| {self.total_step:8.2e}  {used_time:8.0f}  "
               f"| {avg_r:8.2f}  {std_r:6.2f}  {avg_s:6.0f}  "
               f"| {logging_tuple[0]:8.2f}  {logging_tuple[1]:8.2f}  "
-              f"| {money_value:8.2f}    {avg_return:8.2f}" )
+              f"| {avg_er:8.2f}    {std_er:8.2f}" )
         
-        trial.report(avg_return, self.total_step)
+        trial.report(avg_er, self.total_step)
 
         if trial.should_prune():
             raise optuna.exceptions.TrialPruned()
@@ -526,8 +524,9 @@ def get_rewards_and_steps(env, actor, if_render: bool = False) -> (float, int): 
         if if_render:
             env.render()
         if done:
+            episode_return = env.episode_return
             break
-    return cumulative_returns, episode_steps + 1
+    return cumulative_returns, episode_steps + 1, episode_return
 
 
 # from elegantrl.agents import AgentA2C
@@ -812,7 +811,7 @@ class TrainingTesting:
         gamma = trial.suggest_categorical('gamma', [0.95, 0.96, 0.97, 0.98, 0.985, 0.9, 0.95, 0.99])
         net_dimension = trial.suggest_categorical('net_dimension', ['128,64', '256,128', '512,256', '1024,512', '128,64,32', '256,128,64', '512,256,128', '1024,512,256'])
         break_step = trial.suggest_int('target_step', low= len(ticker_list) * 5e7, high=len(ticker_list) * 3e8, step=1e7)
-        eval_gap = break_step // 10
+        eval_gap = break_step // 20
         eval_times = 8
         self.bonus_rate = trial.suggest_float('bonus_rate', 0.10, 0.40, step=0.05)
         self.penalty_rate = trial.suggest_float('penalty_rate', 0.10, 0.40, step=0.05)
