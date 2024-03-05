@@ -1,7 +1,7 @@
-from finrl.config_tickers import MIGUEL_TICKER, DOW_30_TICKER, NAS_100_TICKER, BOT30_TICKER, ROUNDED_TICKER, TECH_TICKER, SINGLE_TICKER, DRL_ALGO_TICKERS
+from finrl.config_tickers import MIGUEL_TICKER, DOW_30_TICKER, NAS_100_TICKER, BOT30_TICKER, ROUNDED_TICKER, TECH_TICKER, SINGLE_TICKER, DRL_ALGO_TICKERS, TEST_TICKERS
 
 CONFIGURATIONS = {
-    "ticker_list": [SINGLE_TICKER],
+    "ticker_list": [TEST_TICKERS],
     "period_years": [6],
     "steps": ["period_years * 300000"],
     "initial_capital":[3e4, 1e6, 3e6],
