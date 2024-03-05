@@ -834,6 +834,8 @@ class TrainingTesting:
             if raw_data is None:
                 logging.info("Not using cache for raw data")
                 data = dp.download_data(ticker_list, start_date, end_date, time_interval)
+                print(data.head(50))
+                print(data.tail(50))
                 data = dp.clean_data(data)
                 print(data.head(50))
                 print(data.tail(50))
@@ -991,13 +993,19 @@ class TrainingTesting:
                         formatted_ticker = ticker.split('.')[0]  # Strip off '.US'
                         for record in records:
                             record_date = pd.to_datetime(record['date'])
-                            #normalized_sentiment = record['count'] * record['normalized']
-                            normalized_sentiment = record['normalized']
+                            count = record['count']
+                            sentiment = record['normalized']
+
+                            # Calculate Sentiment weight
+                            weight = 1 - np.exp(-0.1 * count)
+                            normalized_sentiment = weight * sentiment
+
                             mask = (partition['tic'] == formatted_ticker) & \
                                 (partition['year'] == record_date.year) & \
                                 (partition['month'] == record_date.month) & \
                                 (partition['day'] == record_date.day)
                             partition.loc[mask, 'sentiment'] = normalized_sentiment
+                
                     return partition
 
                 def integrate_sentiment_data(raw_data, sentiment_data, start_date, end_date):
@@ -1314,14 +1322,20 @@ class TrainingTesting:
                     response = requests.get(url)
                     sentiment_data = response.json()
                     return sentiment_data
+                
 
                 def process_partition(partition, ticker_sentiments):
                     for ticker, records in ticker_sentiments.items():
                         formatted_ticker = ticker.split('.')[0]  # Strip off '.US'
                         for record in records:
                             record_date = pd.to_datetime(record['date'])
-                            #normalized_sentiment = record['count'] * record['normalized']
-                            normalized_sentiment = record['normalized']
+                            count = record['count']
+                            sentiment = record['normalized']
+
+                            # Calculate Sentiment weight
+                            weight = 1 - np.exp(-0.1 * count)
+                            normalized_sentiment = weight * sentiment
+
                             mask = (partition['tic'] == formatted_ticker) & \
                                 (partition['year'] == record_date.year) & \
                                 (partition['month'] == record_date.month) & \
