@@ -24,12 +24,12 @@ RUN pip install \
     git+https://github.com/mikazlopes/FinRLOptimized
 
 # Clone your training-farm repository and install additional requirements
-RUN git clone https://github.com/mikazlopes/training-farm.git && \
+RUN git clone -b hp-optuna https://github.com/mikazlopes/training-farm.git && \
     cd training-farm && \
     pip install -r requirements.txt
 
 # Expose ports for the services
-EXPOSE 8080 3306 5678
+EXPOSE 8080 3306 5678 6006
 
 WORKDIR /training-farm
 
@@ -38,21 +38,21 @@ RUN mkdir cache \
     mkdir logs
 
 
-# Start MySQL and setup database
-#RUN sed -i 's/bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
+#Start MySQL and setup database
+RUN sed -i 's/bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
 
-# Initialize MySQL data directory and start the MySQL service
-# RUN service mysql start && \
-#     mysql -u root -e "CREATE DATABASE IF NOT EXISTS optuna_example;" && \
-#     mysql -u root -e "CREATE USER IF NOT EXISTS 'optuna_user'@'%' IDENTIFIED BY 'r00t4dm1n';" && \
-#     mysql -u root -e "GRANT ALL PRIVILEGES ON optuna_example.* TO 'optuna_user'@'%'; FLUSH PRIVILEGES;"
+#Initialize MySQL data directory and start the MySQL service
+RUN service mysql start && \
+    mysql -u root -e "CREATE DATABASE IF NOT EXISTS optuna_example;" && \
+    mysql -u root -e "CREATE USER IF NOT EXISTS 'optuna_user'@'%' IDENTIFIED BY 'r00t4dm1n';" && \
+    mysql -u root -e "GRANT ALL PRIVILEGES ON optuna_example.* TO 'optuna_user'@'%'; FLUSH PRIVILEGES;"
 
-# COPY start_services.sh /start_services.sh
-# RUN chmod +x /start_services.sh
+COPY start_services.sh /start_services.sh
+RUN chmod +x /start_services.sh
 
-# Command to run the application, default arguments can be overridden at runtime
-# Optuna-dashboard is started here in the background and then the main python script
-# CMD ["/start_services.sh"]
+#Command to run the application, default arguments can be overridden at runtime
+#Optuna-dashboard is started here in the background and then the main python script
+CMD ["/start_services.sh"]
 
 
 

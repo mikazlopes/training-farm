@@ -9,4 +9,7 @@ eventlet
 optuna
 optuna-dashboard
 dask[complete]
+dask-expr
 tensorboard
+mysql-connector-python 
+mysqlclient

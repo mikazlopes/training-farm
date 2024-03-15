@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from finrl.config import INDICATORS, SENTIMENT, ECONOMY, RETURNS, PRICE_MOVEMENT, VOLUME, DATE 
-from finrl.config import DATA_SAVE_DIR, RESULTS_DIR, TENSORBOARD_LOG_DIR, TRAIN_END_DATE, TRAIN_START_DATE, TEST_END_DATE, TEST_START_DATE, TRAINED_MODEL_DIR, INTERM_RESULTS, LOGS
+from finrl.config import DATA_SAVE_DIR, RESULTS_DIR, TENSORBOARD_LOG_DIR, TRAIN_END_DATE, TRAIN_START_DATE, TEST_END_DATE, TEST_START_DATE, TRAINED_MODEL_DIR, INTERM_RESULTS
 from finrl.config_private import ALPACA_API_BASE_URL, ALPACA_API_KEY, ALPACA_API_SECRET, ALPHA_VANTAGE_KEY, EOD_KEY
 
 from finrl.config_tickers import MIGUEL_TICKER, DOW_30_TICKER, NAS_100_TICKER, BOT30_TICKER, ROUNDED_TICKER, TECH_TICKER, SINGLE_TICKER, DRL_ALGO_TICKERS
@@ -43,7 +43,7 @@ def check_and_make_directories(directories: list[str]):
 
 CACHE_DIR = './cache'  # Specify your cache directory
 
-check_and_make_directories([DATA_SAVE_DIR, TRAINED_MODEL_DIR, TENSORBOARD_LOG_DIR, RESULTS_DIR, INTERM_RESULTS, LOGS])
+check_and_make_directories([DATA_SAVE_DIR, TRAINED_MODEL_DIR, TENSORBOARD_LOG_DIR, RESULTS_DIR, INTERM_RESULTS])
 
 
 parser = argparse.ArgumentParser(description='Trial Script')
@@ -94,7 +94,7 @@ ticker_list = SINGLE_TICKER
 
 action_dim = len(ticker_list)
 
-# Initialize Hyperparameters variables, will be changed before training starts
+# Initialize Hyperparameters variables
 
 hlenght = int(2e3)
 l_gae_adv = float(0.95)
@@ -811,7 +811,7 @@ class TrainingTesting:
         gamma = trial.suggest_categorical('gamma', [0.95, 0.96, 0.97, 0.98, 0.985, 0.9, 0.95, 0.99])
         net_dimension = trial.suggest_categorical('net_dimension', ['128,64', '256,128', '512,256', '1024,512', '128,64,32', '256,128,64', '512,256,128', '1024,512,256'])
         break_step = trial.suggest_int('target_step', low= len(ticker_list) * 5e7, high=len(ticker_list) * 3e8, step=1e7)
-        eval_gap = break_step // 20
+        eval_gap = break_step // 10
         eval_times = 8
         self.bonus_rate = trial.suggest_float('bonus_rate', 0.10, 0.40, step=0.05)
         self.penalty_rate = trial.suggest_float('penalty_rate', 0.10, 0.40, step=0.05)
@@ -1177,10 +1177,10 @@ class TrainingTesting:
     
     def optimize_hyperparameters(self):
         # Retrieve environment variables or set defaults
-        server_address = os.getenv('SERVER_ADDRESS', 'localhost')
-        server_port = os.getenv('SERVER_PORT', '3306')
-        study_name = os.getenv('STUDY_NAME', 'FinRL-ERL')
-        study_mode = os.getenv('STUDY_MODE', 'server')
+        server_address = '192.168.150.60'
+        server_port = '3306'
+        study_name = 'FinRL-ERL'
+        study_mode = 'client'
         db_user = 'optuna_user'
         db_password = 'r00t4dm1n'
         

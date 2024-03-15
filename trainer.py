@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from finrl.config import INDICATORS, SENTIMENT, ECONOMY, RETURNS, PRICE_MOVEMENT, VOLUME, DATE 
-from finrl.config import DATA_SAVE_DIR, RESULTS_DIR, TENSORBOARD_LOG_DIR, TRAIN_END_DATE, TRAIN_START_DATE, TEST_END_DATE, TEST_START_DATE, TRAINED_MODEL_DIR, INTERM_RESULTS
+from finrl.config import DATA_SAVE_DIR, RESULTS_DIR, TENSORBOARD_LOG_DIR, TRAIN_END_DATE, TRAIN_START_DATE, TEST_END_DATE, TEST_START_DATE, TRAINED_MODEL_DIR, INTERM_RESULTS, LOGS
 from finrl.config_private import ALPACA_API_BASE_URL, ALPACA_API_KEY, ALPACA_API_SECRET, ALPHA_VANTAGE_KEY, EOD_KEY
 
 from finrl.meta.env_stock_trading.env_stocktrading_nd import StockTradingEnv
@@ -11,6 +11,8 @@ from finrl.meta.data_processor import DataProcessor
 import logging
 import numpy as np
 import pandas as pd
+import dask
+dask.config.set({'dataframe.query-planning': True})
 import dask.dataframe as dd
 from dask.distributed import Client
 import pickle
@@ -76,7 +78,7 @@ def check_and_make_directories(directories: list[str]):
 
 CACHE_DIR = './cache'  # Specify your cache directory
 
-check_and_make_directories([DATA_SAVE_DIR, TRAINED_MODEL_DIR, TENSORBOARD_LOG_DIR, RESULTS_DIR, INTERM_RESULTS])
+check_and_make_directories([DATA_SAVE_DIR, TRAINED_MODEL_DIR, TENSORBOARD_LOG_DIR, RESULTS_DIR, INTERM_RESULTS, LOGS])
 
 writer = TensorBoardWriter.get_writer(log_dir=TENSORBOARD_LOG_DIR + '/' + script_uid)
 
@@ -98,7 +100,7 @@ def subtract_years_from_date(date_str, period_years):
 
 TRAIN_START_DATE = subtract_years_from_date(TRAIN_START_DATE, period_years=period_years)
 
-if_nd = False
+if_nd = True
 
 action_dim = len(ticker_list)
 
@@ -236,7 +238,7 @@ class Config:
         self.horizon_len = int(hlength)  # collect horizon_len step while exploring, then update network
         self.buffer_size = None  # ReplayBuffer size. Empty the ReplayBuffer for on-policy.
         self.repeat_times = 8.0  # repeatedly update network using ReplayBuffer to keep critic's loss small
-        self.seed = 312
+        self.seed = 312 # Seed Value
 
         '''Arguments for evaluate'''
         self.cwd = None  # current working directory to save model. None means set automatically
