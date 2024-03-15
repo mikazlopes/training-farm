@@ -3,6 +3,7 @@ from __future__ import annotations
 import eventlet
 eventlet.monkey_patch()
 import os
+from finrl.config import CACHE, DATA_SAVE_DIR, RESULTS_DIR, TENSORBOARD_LOG_DIR, TRAINED_MODEL_DIR, INTERM_RESULTS, LOGS
 import sys
 import uuid
 import hashlib
@@ -23,6 +24,13 @@ from flask import Flask, render_template, jsonify
 import pandas as pd
 
 pd.set_option('display.max_columns', None)
+
+def check_and_make_directories(directories: list[str]):
+    for directory in directories:
+        if not os.path.exists("./" + directory):
+            os.makedirs("./" + directory)
+
+check_and_make_directories([DATA_SAVE_DIR, TRAINED_MODEL_DIR, TENSORBOARD_LOG_DIR, RESULTS_DIR, INTERM_RESULTS, LOGS, CACHE])
 
 logging.basicConfig(
         level=logging.DEBUG,
@@ -299,7 +307,7 @@ def handle_message(data):
         logger.info(f'{uid}: {collected_values[uid]}')
         if len(collected_values[uid]) == 3:
             average = sum(collected_values[uid]) / 3
-            if average < -300000:
+            if average <= -100:
                 logger.info(f"Average for {uid} too low, killing training")
                 # Remove the process from collected_values
                 if uid in collected_values:

@@ -67,18 +67,11 @@ hlength = arguments.horizon_length
 l_gae_adv = arguments.lambda_gae_adv
 l_entropy = arguments.lambda_entropy
 initial_capital = arguments.initial_capital
-break_step = len(ticker_list) * 5e7
+break_step = len(ticker_list) * 2e8
 
 id_name = script_uid
 
-def check_and_make_directories(directories: list[str]):
-    for directory in directories:
-        if not os.path.exists("./" + directory):
-            os.makedirs("./" + directory)
-
 CACHE_DIR = './cache'  # Specify your cache directory
-
-check_and_make_directories([DATA_SAVE_DIR, TRAINED_MODEL_DIR, TENSORBOARD_LOG_DIR, RESULTS_DIR, INTERM_RESULTS, LOGS])
 
 writer = TensorBoardWriter.get_writer(log_dir=TENSORBOARD_LOG_DIR + '/' + script_uid)
 
@@ -540,23 +533,22 @@ class Evaluator:
         avg_r = rewards_steps_ary[:, 0].mean()  # average of cumulative rewards
         std_r = rewards_steps_ary[:, 0].std()  # std of cumulative rewards
         avg_s = rewards_steps_ary[:, 1].mean()  # average of steps in an episode
+        avg_er = rewards_steps_ary[:, 2].mean()  # average of Epsiode Returns
+        std_er = std_r = rewards_steps_ary[:, 2].std()  # std of Episode Returns
 
         used_time = time.time() - self.start_time
         self.recorder.append((self.total_step, used_time, avg_r))
 
-        money_value = avg_r/2**-11
-
-        avg_return = (money_value - initial_capital)/initial_capital
         
         logging.info(f"| {self.total_step:8.2e}  {used_time:8.0f}  "
                     f"| {avg_r:8.2f}  {std_r:6.2f}  {avg_s:6.0f}  "
                     f"| {logging_tuple[0]:8.2f}  {logging_tuple[1]:8.2f} "
-                    f"| {money_value:8.2f}    {avg_return:8.2f}")
+                    f"| {avg_er:8.2f}    {std_er:8.2f}" )
         
         writer.add_scalar('Scaled_Reward/Avg', avg_r, self.total_step)
         writer.add_scalar('Scaled_Reward/Std', std_r, self.total_step)
-        writer.add_scalar('Money_Value', money_value, self.total_step)
-        writer.add_scalar('Return/Avg', avg_return, self.total_step)
+        writer.add_scalar('Episode_Returns/Avg', avg_er, self.total_step)
+        writer.add_scalar('Episode_Returns/Std', std_er, self.total_step)
           
         sio.send({'uid': script_uid, 'type': 'training', 'value': float(avg_r)})
 
@@ -577,8 +569,9 @@ def get_rewards_and_steps(env, actor, if_render: bool = False) -> (float, int): 
         if if_render:
             env.render()
         if done:
+            episode_return = env.episode_return
             break
-    return cumulative_returns, episode_steps + 1
+    return cumulative_returns, episode_steps + 1, episode_return
 
 
 # from elegantrl.agents import AgentA2C
@@ -1473,7 +1466,7 @@ if __name__ == '__main__':
         end_date = TRAIN_END_DATE,
         ticker_list = ticker_list, 
         data_source = 'alpaca',
-        time_interval= '5Min', 
+        time_interval= '1Min', 
         technical_indicator_list= INDICATORS,
         drl_lib='elegantrl', 
         env=env,
@@ -1494,7 +1487,7 @@ if __name__ == '__main__':
                         end_date = TEST_END_DATE,
                         ticker_list = ticker_list, 
                         data_source = 'alpaca',
-                        time_interval= '5Min', 
+                        time_interval= '1Min', 
                         technical_indicator_list= INDICATORS,
                         drl_lib='elegantrl', 
                         env=env, 

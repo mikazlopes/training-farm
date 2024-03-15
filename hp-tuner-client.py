@@ -504,8 +504,8 @@ class Evaluator:
         
         trial.report(avg_er, self.total_step)
 
-        if trial.should_prune():
-            raise optuna.exceptions.TrialPruned()
+        # if trial.should_prune():
+        #     raise optuna.exceptions.TrialPruned()
 
 
 def get_rewards_and_steps(env, actor, if_render: bool = False) -> (float, int):  # cumulative_rewards and episode_steps # type: ignore
@@ -1205,7 +1205,6 @@ class TrainingTesting:
             study_name=study_name,
             storage=storage,
             direction='maximize',
-            pruner=pruner
         )
         study.optimize(self.objective, n_trials=self.n_trials, catch=(ValueError,))
 

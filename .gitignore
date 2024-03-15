@@ -16,6 +16,7 @@ feature_importances.png
 *.out
 trade_*
 train_sb3.py
+interm_results/*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
